@@ -56,9 +56,10 @@ for l = 1:length(trayectoriaD)
     Xreal(:,l) = Xrealk;  % Para mantener una historia del recorrido
 
     % Observacion de las balizas
-    Zk = [(atan2(t1y-Xrealk(2),t1x-Xrealk(1)) - Xrealk(3) + sqrt(R1)*randn);
-          (atan2(t2y-Xrealk(2),t2x-Xrealk(1)) - Xrealk(3) + sqrt(R2)*randn);
-          (atan2(t3y-Xrealk(2),t3x-Xrealk(1)) - Xrealk(3) + sqrt(R3)*randn)];
+%     Zk = [(atan2(t1y-Xrealk(2),t1x-Xrealk(1)) - Xrealk(3) + sqrt(R1)*randn);
+%           (atan2(t2y-Xrealk(2),t2x-Xrealk(1)) - Xrealk(3) + sqrt(R2)*randn);
+%           (atan2(t3y-Xrealk(2),t3x-Xrealk(1)) - Xrealk(3) + sqrt(R3)*randn)];
+    Zk = 
           
     % Para acortar el nombre de la variable
     Uk = [trayectoriaDRuido(l); trayectoriaBRuido(l)];

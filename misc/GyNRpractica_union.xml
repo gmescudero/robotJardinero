@@ -73,6 +73,9 @@
 		</FaceSetPart>
 		<Pioneer3ATSim name="Marvin" id="2">
 			<odometry seconds="0" microseconds="0"/>
+			<position>
+				{3.0,3.0,0}
+			</position>
 		</Pioneer3ATSim>
 		<LMS100Sim name="LMS100" id="3" linkTo="$Marvin$">
 			<position>

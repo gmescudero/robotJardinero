@@ -10,10 +10,16 @@ LM(4,:) = [3.9, 3.9, 0.2];
 LM(5,:) = [3.9, 0.0, 0.2];
 % Posicion robot 
 robot.pos = [0, 0, 0];
+robot.ang = [pi/2];
 % Posicion del laser respecto al robot
 laser.pos(1) = 0.1;
-laser.pos(2) = 0.4;
+laser.pos(2) = 0;
 laser.ang = 0;
+
+% Pasamos la posición del laser a cordenadas refenciales
+laserPosXRef = laser.pos(1)*cos(robot.ang) - laser.pos(2)*sin(robot.ang);
+laserPosYRef = laser.pos(1)*sin(robot.ang) + laser.pos(2)*cos(robot.ang);
+laserAngRef = robot.ang + laser.ang;
 
 % Numero pruebas
 N = 100;
@@ -38,13 +44,13 @@ for i = 1:N
         angulo_laser = baliza.angle(j);
         % Estimacion de la posicion a partir de los datos obtenidos por el
         % laser
-        x_est_laser(end+1) = - distancia_laser*sin(angulo_laser);
-        y_est_laser(end+1) = distancia_laser*cos(angulo_laser);
-        ang_est_laser(end+1) = angulo_laser;
+        x_est_laser(end+1) = - distancia_laser*sin(angulo_laser) + laserPosXRef;
+        y_est_laser(end+1) = distancia_laser*cos(angulo_laser) + laserPosYRef;
+        ang_est_laser(end+1) = angulo_laser + laserAngRef;
         % Calculo del error
         errorX(end+1) = LM(j,1) - x_est_laser(end);
         errorY(end+1) = LM(j,2) - y_est_laser(end);
-        errorAng(end+1) = atan2(LM(j,1),LM(j,2)) - ang_est_laser(end+1);
+        errorAng(end+1) = atan2(LM(j,1),LM(j,2)) + ang_est_laser(end);
     end
 end
 
@@ -68,12 +74,15 @@ disp('--------------------------------------------')
 
 % Ploteo de los errores
 figure(1)
-subplot(2,1,1)
+subplot(3,1,1)
 plot(errorX)
 title('Error en X')
-subplot(2,1,2)
+subplot(3,1,2)
 plot(errorY)
 title('Error en Y')
+subplot(3,1,3)
+plot(errorAng)
+title('Error en angulo')
 
 % Ploteo de las balizas y las posiciones estimadas de las mismas
 figure(2)

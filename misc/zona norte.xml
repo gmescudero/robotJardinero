@@ -1,0 +1,80 @@
+</PrismaticPart>
+		<CylindricalPart height="0.5" name="Plaza norte" id="22">
+			<position>
+				{23,6.8,0}
+			</position>
+			<colour r="0" g="1" b="0"/>
+		</CylindricalPart>
+		<PrismaticPart name="SetoNW" id="23">
+			<orientation>
+				{0,-0,-1.5708}
+			</orientation>
+			<position>
+				{19,12.4,0}
+			</position>
+			<colour r="0" g="1" b="0"/>
+			<face>
+				<vertex>
+					{4,7,0}
+					{0,7,0}
+					{0,2,0}
+					{4,4,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		<PrismaticPart name="SetoNE" id="24">
+			<orientation>
+				{3.14159,0,1.57079}
+			</orientation>
+			<position>
+				{19,1.08,1}
+			</position>
+			<colour r="0" g="1" b="0"/>
+			<face>
+				<vertex>
+					{4,7,0}
+					{0,7,0}
+					{0,2,0}
+					{4,4,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+
+
+		<PrismaticPart name="SetoTochoNW" id="25">
+			<orientation>
+				{0,-0,-1.5708}
+			</orientation>
+			<position>
+				{18.4,10.604,0}
+			</position>
+			<colour r="0" g="0.501961" b="0"/>
+			<face>
+				<vertex>
+					{0.8,-1.1,0}
+					{-0.7,1.4,0}
+					{2.3,3.4,0}
+					{3.1,2.5,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+
+
+		<PrismaticPart name="SetoTochoNE">
+			<orientation>
+				{0,3.141592,-1.5708}
+			</orientation>
+			<position>
+				{18.4,2,1.0}
+			</position>
+			<colour r="0" g="0.501961" b="0"/>
+			<face>
+				<vertex>
+					{0.8,-1.1,0}
+					{-0.7,1.4,0}
+					{2.3,3.4,0}
+					{3.1,2.5,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		

@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<root>
+	<World>
+		<WorldInfo name="" id="0"/>
+		<FaceSetPart name="Parque" id="1">
+			<colour r="0.501961" g="0.25098" b="0.25098"/>
+			<face>
+				<colour r="0.2" g="0.2"/>
+				<vertex>
+					{0,0,0}
+					{0,13.5,0}
+					{26.5,13.5,0}
+					{26.5,0,0}
+				</vertex>
+			</face>
+			<face>
+				<colour r="0.2" g="0.2" b="0.8"/>
+				<vertex>
+					{0,0,0}
+					{0,2,0}
+					{13.5,2,0}
+					{13.5,0,0}
+				</vertex>
+				<orientation>
+					{1.5708,0,1.5708}
+				</orientation>
+			</face>
+			<face>
+				<colour r="0.2" g="0.2" b="0.8"/>
+				<vertex>
+					{0,0,0}
+					{0,2,0}
+					{26.5,2,0}
+					{26.5,0,0}
+				</vertex>
+				<orientation>
+					{1.5708,0,0}
+				</orientation>
+				<position>
+					{0,13.5,0}
+				</position>
+			</face>
+			<face>
+				<colour r="0.2" g="0.2" b="0.8"/>
+				<vertex>
+					{0,0,0}
+					{0,2,0}
+					{13.5,2,0}
+					{13.5,0,0}
+				</vertex>
+				<orientation>
+					{1.5708,0,-1.5708}
+				</orientation>
+				<position>
+					{26.5,13.5,0}
+				</position>
+			</face>
+			<face>
+				<colour r="0.2" g="0.2" b="0.8"/>
+				<vertex>
+					{0,0,0}
+					{0,2,0}
+					{26.5,2,0}
+					{26.5,0,0}
+				</vertex>
+				<orientation>
+					{1.5708,0,-3.14159}
+				</orientation>
+				<position>
+					{26.5,0,0}
+				</position>
+			</face>
+		</FaceSetPart>
+		<Pioneer3ATSim name="Marvin" id="2">
+			<odometry seconds="0" microseconds="0"/>
+		</Pioneer3ATSim>
+		<LMS100Sim name="LMS100" id="3" linkTo="$Marvin$">
+			<position>
+				{0.1,0,0.4}
+			</position>
+			<colour r="0" g="1" b="0"/>
+		</LMS100Sim>
+		<UltrasonicSensor conusAngle="0.174533" maxRange="3" minRange="0.05" error="0" name="uc0" id="4" linkTo="$Marvin$">
+			<orientation>
+				{0,-0.1,0}
+			</orientation>
+			<position>
+				{0.2,0,0.2}
+			</position>
+			<colour r="0" g="1" b="0"/>
+		</UltrasonicSensor>
+		<UltrasonicSensor conusAngle="0.174533" maxRange="3" minRange="0.05" error="0" name="ul1" id="5" linkTo="$Marvin$">
+			<orientation>
+				{6.93889e-18,-0.1,0.7}
+			</orientation>
+			<position>
+				{0.18,0.11,0.2}
+			</position>
+			<colour r="0" g="1" b="0"/>
+		</UltrasonicSensor>
+		<UltrasonicSensor conusAngle="0.174533" maxRange="3" minRange="0.05" error="0" name="ur1" id="6" linkTo="$Marvin$">
+			<orientation>
+				{-6.93889e-18,-0.1,-0.7}
+			</orientation>
+			<position>
+				{0.18,-0.11,0.2}
+			</position>
+			<colour r="0" g="1" b="0"/>
+		</UltrasonicSensor>
+		<LandMark mark_id="1" name="LM1" id="7">
+			<position>
+				{-3.9,3.9,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="2" name="LM2" id="8">
+			<position>
+				{3.9,3.9,0.2}
+			</position>
+		</LandMark>
+		<CylindricalPart height="0.5" radius="1.2" name="Plaza principal" id="9">
+			<position>
+				{10.5,6.8,0}
+			</position>
+			<colour r="1" g="1" b="1"/>
+		</CylindricalPart>
+		<PrismaticPart name="Seto 1" id="10">
+			<orientation>
+				{0,0,-1.5708}
+			</orientation>
+			<position>
+				{3,7.5,0}
+			</position>
+			<colour r="0" g="0.25098" b="0"/>
+			<face>
+				<vertex>
+					{0,-2,0}
+					{0,4,0}
+					{-4,-2,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		<PrismaticPart name="Seto 2" id="11">
+			<orientation>
+				{-3.14159,1.22465e-16,1.57079}
+			</orientation>
+			<position>
+				{3,6,1}
+			</position>
+			<colour r="0" g="0.25098" b="0"/>
+			<face>
+				<vertex>
+					{0,-2,0}
+					{0,4,0}
+					{-4,-2,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		<PrismaticPart name="Seto 3" id="12">
+			<position>
+				{2.5,1,0}
+			</position>
+			<colour r="0" g="0.25098" b="0"/>
+			<face>
+				<vertex>
+					{0,0,0}
+					{3.4,2.3,0}
+					{6.8,0,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		<PrismaticPart name="Seto 4" id="13">
+			<orientation>
+				{3.14159,0,0}
+			</orientation>
+			<position>
+				{2.5,12.5,1}
+			</position>
+			<colour r="0" g="0.25098" b="0"/>
+			<face>
+				<vertex>
+					{0,0,0}
+					{3.4,2.3,0}
+					{6.8,0,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		<PrismaticPart name="Seto 5" id="14">
+			<orientation>
+				{0,0,-1.5708}
+			</orientation>
+			<position>
+				{9.5,5,0}
+			</position>
+			<colour r="0" g="0.25098" b="0"/>
+			<face>
+				<vertex>
+					{0.3,0,0}
+					{3.1,0,0}
+					{1.03636,-2.87273,0}
+					{-0.3,-1.1,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		<PrismaticPart name="Seto 6" id="15">
+			<orientation>
+				{-3.14159,1.22465e-16,1.57079}
+			</orientation>
+			<position>
+				{9.5,8.5,1}
+			</position>
+			<colour r="0" g="0.25098" b="0"/>
+			<face>
+				<vertex>
+					{0.3,0,0}
+					{3.1,0,0}
+					{1.03636,-2.87273,0}
+					{-0.3,-1.1,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		<PrismaticPart name="Seto lado" id="16">
+			<orientation>
+				{0,-0,-1.5708}
+			</orientation>
+			<position>
+				{12,12.5,0}
+			</position>
+			<colour r="0" g="0.25098" b="0"/>
+			<face>
+				<vertex>
+					{0,0,0}
+					{0,8,0}
+					{2.3,4,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		<PrismaticPart name="Seto lado2" id="17">
+			<orientation>
+				{0,-0,1.5708}
+			</orientation>
+			<position>
+				{19.8,1,0}
+			</position>
+			<colour r="0" g="0.25098" b="0"/>
+			<face>
+				<vertex>
+					{0,0,0}
+					{0,8,0}
+					{2.3,4,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		<PrismaticPart name="Seto medio" id="18">
+			<orientation>
+				{0,-0,1.5708}
+			</orientation>
+			<position>
+				{18.5,7.5,0}
+			</position>
+			<colour r="0" g="0.25098" b="0"/>
+			<face>
+				<vertex>
+					{0,0,0}
+					{0,5,0}
+					{1.66,2.5,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		<PrismaticPart name="Seto medio2" id="19">
+			<orientation>
+				{0,-0,-1.5708}
+			</orientation>
+			<position>
+				{13.5,6,0}
+			</position>
+			<colour r="0" g="0.25098" b="0"/>
+			<face>
+				<vertex>
+					{0,0,0}
+					{0,5,0}
+					{1.66,2.5,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		<PrismaticPart name="Seto medioraro" id="20">
+			<orientation>
+				{0,-0,1.5708}
+			</orientation>
+			<position>
+				{11.5,8.5,0}
+			</position>
+			<colour r="0" g="0.25098" b="0"/>
+			<face>
+				<vertex>
+					{0.3,0,0}
+					{3.1,0,0}
+					{1.03636,-2.87273,0}
+					{-0.3,-1.1,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		<PrismaticPart name="Seto medioraro2" id="21">
+			<orientation>
+				{3.14159,-0,-1.5708}
+			</orientation>
+			<position>
+				{11.5,5,1}
+			</position>
+			<colour r="0" g="0.25098" b="0"/>
+			<face>
+				<vertex>
+					{0.3,0,0}
+					{3.1,0,0}
+					{1.03636,-2.87273,0}
+					{-0.3,-1.1,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+	</World>
+</root>

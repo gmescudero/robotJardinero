@@ -8,19 +8,32 @@ clearvars
 % 
 % %% General operations
 % robot = 'Pioneer3AT';
-% apoloPlaceMRobot(robot,[3,13,0],0)
+% apoloPlaceMRobot(robot,[0,0,pi/2],0)
 % apoloGetLocation(robot) % returns location
 
 %% Control reactivo
 robot = 'Marvin';
 
+apoloPlaceMRobot(robot,[0,0,pi/2],0)
+apoloUpdate()
+
 while true
-    frente    = apoloGetUltrasonicSensor('uc0');
-    izquierda = apoloGetUltrasonicSensor('ul1');
+    frente      = apoloGetUltrasonicSensor('uc0');
+    izquierda   = apoloGetUltrasonicSensor('ul1');
+    derecha     = apoloGetUltrasonicSensor('ur1');
     vf = 0; vg = 0;
-    lim = 0.4;
-    if frente > lim
+    lim1 = 0.8;
+    lim2 = 0.4;
+    
+    if frente > lim1 && izquierda > lim2 && derecha > lim2
         vf = 1;
+    elseif frente > lim2
+        vf = 0.5;
+        if izquierda > lim2
+            vg = 1;
+        else
+            vg = -1;
+        end
     else
         if frente < izquierda
             vg = 1;
@@ -29,16 +42,7 @@ while true
         end
     end
     ret = apoloMoveMRobot(robot,[vf vg],0.1);
-    if 0 == ret
-        vg = 0.2;
-        vf = -0.5;
-        ret = apoloMoveMRobot(robot,[vf vg],0.1);
-        if 0 == ret
-            vg = 1;
-            vf = 0;
-            apoloMoveMRobot(robot,[vf vg],0.1);
-        end
-    end
+
     apoloUpdate()
     pause(0.1);
 end

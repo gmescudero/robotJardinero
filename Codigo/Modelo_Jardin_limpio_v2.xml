@@ -73,11 +73,12 @@
 		</FaceSetPart>
 		<Pioneer3ATSim name="Marvin" id="2">
 			<odometry seconds="0" microseconds="0"/>
+			<position>
+				{0.5,0.5,0}
+			</position>
 		</Pioneer3ATSim>
 		<LMS100Sim name="LMS100" id="3" linkTo="$Marvin$">
-			<position>
-				{0.1,0,0.4}
-			</position>
+			
 			<colour r="0" g="1" b="0"/>
 		</LMS100Sim>
 		<UltrasonicSensor conusAngle="0.174533" maxRange="3" minRange="0.05" error="0" name="uc0" id="4" linkTo="$Marvin$">
@@ -107,6 +108,9 @@
 			</position>
 			<colour r="0" g="1" b="0"/>
 		</UltrasonicSensor>
+		
+		<!-- BALIZAS -->
+		
 		<LandMark mark_id="1" name="LM1: Fuente O" id="7">
 			<position>
 				{10.35,5.55,0.2}
@@ -142,71 +146,90 @@
 				{11.3,6.75,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="8" name="Baliza 7" id="14">
+		<LandMark mark_id="8" name="LM8: Baliza 8" id="14">
 			<position>
 				{10.4,8,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="9" name="ZonaNO1" id="15">
+		<LandMark mark_id="9" name="LM9: ZonaNO1" id="15">
 			<position>
 				{15.7,9.9,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="10" name="ZonaNE1" id="16">
+		<LandMark mark_id="10" name="LM10: ZonaNE1" id="16">
 			<position>
 				{15.5,3.3,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="11" name="ZonaNO2" id="17">
+		<LandMark mark_id="11" name="LM11: ZonaNO2" id="17">
 			<position>
 				{20.5,7.3,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="12" name="ZonaNE2" id="18">
+		<LandMark mark_id="12" name="LM12: ZonaNE2" id="18">
 			<position>
 				{20.5,6.1,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="13" name="ZonaNO3" id="19">
+		<LandMark mark_id="13" name="LM13: ZonaNO3" id="19">
 			<position>
 				{20.3,12.2,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="14" name="ZonaNE3" id="20">
+		<LandMark mark_id="14" name="LM14: ZonaNE3" id="20">
 			<position>
 				{20.3,1.1,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="15" name="ZonaNO4" id="21">
+		<LandMark mark_id="15" name="LM15: ZonaNO4" id="21">
 			<position>
 				{24,5.6,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="16" name="ZonaNE4" id="22">
+		<LandMark mark_id="16" name="LM16: ZonaNE4" id="22">
 			<position>
 				{23.6,7.6,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="17" name="ZonaNO5" id="23">
+		<LandMark mark_id="17" name="LM17: ZonaNO5" id="23">
 			<position>
 				{22.3,8.4,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="18" name="ZonaNE5" id="24">
+		<LandMark mark_id="18" name="LM18: ZonaNE5" id="24">
 			<position>
 				{22.5,5,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="19" name="ZonaE1" id="25">
+		<LandMark mark_id="19" name="LM19: ZonaE1" id="25">
 			<position>
 				{11.3,0.7,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="20" name="ZonaO1" id="26">
+		<LandMark mark_id="20" name="LM20: ZonaO1" id="26">
 			<position>
 				{11.4,12.4,0.2}
 			</position>
 		</LandMark>
+			<!--gme-->
+		<LandMark mark_id="21" name="LM21: ZonaSO1">
+			<position>
+				{5.8,10.1,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="22" name="LM22: ZonaSE1">
+			<position>
+				{5.9,4,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="23" name="LM23: ZonaS1">
+			<position>
+				{1.4,7.2,0.2}
+			</position>
+		</LandMark>
+		
+		<!-- DEFINICIÓN DE OBSTÁCULOS -->
+		
 		<PrismaticPart name="Seto 1" id="27">
 			<orientation>
 				{0,0,-1.5708}

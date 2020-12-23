@@ -5,8 +5,6 @@ function [Xest_kp1_kp1,P_kp1_kp1] = kalmanFilter(...
     Z_kp1)      % Sensor Readings
 
 % TODO build this matrixes correctly
-A = eye(size(X_k(1)));
-B = eye(size(X_k(1)));
 Q_k = eye(size(X_k(1)));
 H_kp1 = eye(size(X_k(1)));
 R_kp1 = eye(size(X_k(1)));
@@ -14,10 +12,11 @@ R_kp1 = eye(size(X_k(1)));
 %% Prediction
 % New estimated position from Odometry
 Xest_kp1_k = nextPos(X_k,U_kp1,0); 
+F_Xest_k    = 1; % nextPos derivated over Xest_k
+F_U_kp1     = 1; % nextPos derivated over U_kp1
+F_w_k       = 1; % nextPos derivated over w_k
 
 % Variances and Covariances
-F_Xest_k    = 1;
-F_w_k       = 1;
 P_kp1_k = F_Xest_k*P_k*F_Xest_k' + F_w_k*Q_k*F_w_k'; 
 
 % Estimated masurements

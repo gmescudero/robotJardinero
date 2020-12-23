@@ -15,6 +15,7 @@ robot.ang = [pi/2];
 laser.pos(1) = 0.1;
 laser.pos(2) = 0;
 laser.ang = 0;
+apoloPlaceMRobot('Marvin', robot.pos, robot.ang);
 
 % Pasamos la posición del laser a cordenadas refenciales
 laserPosXRef = laser.pos(1)*cos(robot.ang) - laser.pos(2)*sin(robot.ang);
@@ -47,7 +48,7 @@ for i = 1:N
         % laser
         x_est_laser(end+1) = - distancia_laser*sin(angulo_laser) + laserPosXRef;
         y_est_laser(end+1) = distancia_laser*cos(angulo_laser) + laserPosYRef;
-        ang_est_laser(end+1) = angulo_laser + laserAngRef;
+        ang_est_laser(end+1) = angulo_laser + laserAngRef - pi/2;
         % Calculo del error
         errorX(end+1) = LM(j,1) - x_est_laser(end);
         errorY(end+1) = LM(j,2) - y_est_laser(end);

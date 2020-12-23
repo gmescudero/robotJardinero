@@ -37,6 +37,7 @@ ang_est_laser = [];
 % Inicio de toma de medidas
 for i = 1:N
     % Se realiza una busqueda de balizas por el laser
+    apoloUpdate;
     baliza = apoloGetLaserLandMarks('LMS100');
     for j = 1:K
         % Extaccion de las medidas realizadas por el laser
@@ -67,7 +68,7 @@ e_ang_var = var(errorAng);
 % Mostramos por pantalla
 disp('------------ Calibracion sensor ------------')
 disp(['Media del error: [' num2str(e_x_med) ', ' num2str(e_y_med) ', ' num2str(e_ang_med) ']'])
-disp(['Desviacion del error: [' num2str(e_x_var) ', ' num2str(e_y_var) ', ' num2str(e_ang_var) ']'])
+disp(['Vaianza del error: [' num2str(e_x_var) ', ' num2str(e_y_var) ', ' num2str(e_ang_var) ']'])
 disp('--------------------------------------------')
 
 %% Ploteo

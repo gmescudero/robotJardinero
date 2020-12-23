@@ -84,13 +84,15 @@
 		<Pioneer3ATSim name="Marvin" id="2">
 			<odometry seconds="0" microseconds="0"/>
 			<position>
-				{0.5,0.5,0}
+				{1.0,1.0,0}
 			</position>
 		</Pioneer3ATSim>
 		
 		<!-- SENSORES -->
 		<LMS100Sim name="LMS100" id="3" linkTo="$Marvin$">
-			
+			<position>
+				{0.1,0,0.4}
+			</position>
 			<colour r="0" g="1" b="0"/>
 		</LMS100Sim>
 		<UltrasonicSensor conusAngle="0.174533" maxRange="3" minRange="0.05" error="0" name="uc0" id="4" linkTo="$Marvin$">

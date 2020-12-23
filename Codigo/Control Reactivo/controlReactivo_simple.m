@@ -1,49 +1,27 @@
 clearvars
 
-%% Compute robot C space
-% q1 = -1.07:0.01:0.44;
-% q2 = -0.21:0.01:0.77;
-% robot = 'ASEA';
-% a = cspace(robot,q1,q2);
-% 
-% %% General operations
-% robot = 'Pioneer3AT';
-% apoloPlaceMRobot(robot,[0,0,pi/2],0)
-% apoloGetLocation(robot) % returns location
-
 %% Control reactivo
 robot = 'Marvin';
+laser = 'LMS100';
+sampleT = 0.1;
+u = zeros(3,1);
 
 apoloPlaceMRobot(robot,[1,1,0],0)
 apoloUpdate()
 
 while true
-    frente      = apoloGetUltrasonicSensor('uc0');
-    izquierda   = apoloGetUltrasonicSensor('ul1');
-    derecha     = apoloGetUltrasonicSensor('ur1');
+    % Get ultrasonic measurements
+    u(1) = apoloGetUltrasonicSensor('uc0');
+    u(2) = apoloGetUltrasonicSensor('ul1');
+    u(3) = apoloGetUltrasonicSensor('ur1');
     
-    vf = 0; vg = 0;
-    lim1 = 0.8;
-    lim2 = 0.4;
+    % Compute velocities based on obstacles distance
+    [vf, vg] = reactiveControl(u);
     
-    if frente > lim1 && izquierda > lim2 && derecha > lim2
-        vf = 1;
-    elseif frente > lim2
-        vf = 0.5;
-        if izquierda > lim2
-            vg = 1;
-        else
-            vg = -1;
-        end
-    else
-        if frente < izquierda
-            vg = 1;
-        else
-            vg = -1;
-        end
-    end
-    ret = apoloMoveMRobot(robot,[vf vg],0.1);
-
+    % Use retrieved velocities to command the robot
+    ret = apoloMoveMRobot(robot,[vf vg],sampleT);
+    
+    % Update Apolo info and synchronizate movement
     apoloUpdate()
-    pause(0.1);
+    pause(sampleT);
 end

@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <root>
 	<World>
-		<WorldInfo name="" id="0"/>
+		<!-- NUMEROS DE MATRICULA -->
+		<WorldInfo name="Robot Jardinero">
+			<RegisterNumber number="19056"/>
+			<RegisterNumber number="19155"/>
+			<RegisterNumber number="20251"/><!--gme-->
+		</WorldInfo>
+	
+		<!-- HABITACION -->
 		<FaceSetPart name="Sala Cuadrada 8x8" id="1">
 			<face>
 				<colour r="0.2" g="0.2"/>
@@ -73,6 +80,8 @@
 				</position>
 			</face>
 		</FaceSetPart>
+		
+		<!-- ROBOT -->	
 		<Pioneer3ATSim name="Marvin" id="2">
 			<odometry seconds="0" microseconds="0"/>
 			<orientation>
@@ -82,6 +91,8 @@
 					{0,0,0}
 				</position>
 		</Pioneer3ATSim>
+		
+		<!-- SENSORES -->
 		<LMS100Sim name="LMS100" id="3" linkTo="$Marvin$">
 			<position>
 				{0.1,0,0.4}

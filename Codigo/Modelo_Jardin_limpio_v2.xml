@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <root>
 	<World>
-		<WorldInfo name="" id="0"/>
+	
+		<!-- NUMEROS DE MATRICULA -->
+		<WorldInfo name="Robot Jardinero">
+			<RegisterNumber number="19056"/>
+			<RegisterNumber number="19155"/>
+			<RegisterNumber number="20251"/><!--gme-->
+		</WorldInfo>
+		
+		<!-- HABITACION RECTANGULAR -->
 		<FaceSetPart name="Parque" id="1">
 			<colour r="0.501961" g="0.25098" b="0.25098"/>
 			<face>
@@ -71,12 +79,16 @@
 				</position>
 			</face>
 		</FaceSetPart>
+		
+		<!-- ROBOT -->		
 		<Pioneer3ATSim name="Marvin" id="2">
 			<odometry seconds="0" microseconds="0"/>
 			<position>
 				{0.5,0.5,0}
 			</position>
 		</Pioneer3ATSim>
+		
+		<!-- SENSORES -->
 		<LMS100Sim name="LMS100" id="3" linkTo="$Marvin$">
 			
 			<colour r="0" g="1" b="0"/>
@@ -110,7 +122,6 @@
 		</UltrasonicSensor>
 		
 		<!-- BALIZAS -->
-		
 		<LandMark mark_id="1" name="LM1: Fuente O" id="7">
 			<position>
 				{10.35,5.55,0.2}
@@ -229,7 +240,6 @@
 		</LandMark>
 		
 		<!-- DEFINICIÓN DE OBSTÁCULOS -->
-		
 		<PrismaticPart name="Seto 1" id="27">
 			<orientation>
 				{0,0,-1.5708}

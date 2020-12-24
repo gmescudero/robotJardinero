@@ -37,10 +37,10 @@ Pthetaini = 0.001;
 Pk = [Pxini 0 0; 0 Pyini 0 ; 0 0 Pthetaini];
 
 % Varianza en la medida
-R1 = 0.0016278;
-R2 = 0.0020709;
-R3 = 0.00049331;
-Rk = [R1 0 0; 0 R2 0; 0 0 R3];
+% R1 = 0.0016278;
+% R2 = 0.0020709;
+% R3 = 0.00049331;
+% Rk = [R1 0 0; 0 R2 0; 0 0 R3];
 
 % Posicion balizas
 LM(1,:) = [-3.9, 0.0, 0.2];
@@ -99,23 +99,29 @@ while t<tmax
     % ----------------- (ESTO POSIBLEMENTE ESTE MAL) -----------------
     % Depende de que modelo de lectura de balizas estemos usando
     Zk_ = [];
+    Rk_aux = [];
+    Hk = [];
     for j = 1:length(baliza.distance)
         id = baliza.id(j);
         incX = LM(id,1)-X_k(1);
         incY = LM(id,2)-X_k(2);
         Zk_(2*j-1) = sqrt((incX)^2 + (incY)^2);
         Zk_(2*j) = X_k(3)-atan2(incY,incX);
-        Hk(j,:) = [1 0];
+        Hk(2*j-1,:) = [incX/(incX^2+incY^2) incY/(incX^2+incY^2) -1];
+        Hk(2*j,:) = [0 0 1];
+        Rk_aux(2*j-1) = 0.001;
+        Rk_aux(2*j) = 0.001;
     end
+    Rk = diag(Rk_aux);
     % ----------------------------------------------------------------
     
     % Comparacion
-    Yk = Zk-Zk_
+    Yk = Zk-Zk_;
     Sk = Hk*P_k*((Hk)') + Rk;
     Wk = P_k*((Hk)')/Sk;
 
     % Correccion
-    Xk = X_k + Wk*Yk;
+    Xk = X_k + Wk*Yk';
     Pk = (eye(3) - Wk*Hk)*P_k;
     
     %Sólo para almacenarlo

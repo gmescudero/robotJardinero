@@ -2,9 +2,9 @@
 clearvars; clc;
 
 % Definimos una trayectoria circular
-h = 0.1;  % Actualizacion de sensores
-v = 0.2;  % Velocidad lineal 0.2 m/seg
-w = 0.2;
+h = 0.5;    % Actualizacion de sensores
+v = 0.1;    % Velocidad lineal
+w = 0.1;    % Velocidad angular
 
 % Posicion robot 
 robot.pos = [0, 0, 0];
@@ -26,11 +26,11 @@ Xk = [0; 0; pi/2];
 apoloPlaceMRobot('Marvin', robot.pos, robot.ang);
 
 % Varianza del ruido del proceso 
-Qd = 0.01*v;
-Qb = 0.01*w;
+Qd = 0.001*v;
+Qb = 0.001*w;
 Qk_1 = [Qd 0; 0 Qb];
-% Qk_1 = 0.0*v;
 
+% Inicializacion matriz P
 Pxini = 0.001;
 Pyini = 0.001;
 Pthetaini = 0.001;
@@ -51,7 +51,7 @@ LM(5,:) = [3.9, 0.0, 0.2];
 
 % Algoritmo
 t = 0;
-tmax = 25;
+tmax = 30;
 k = 1;
 Ktotal = zeros(3);      
 while t<tmax
@@ -59,8 +59,8 @@ while t<tmax
     apoloMoveMRobot('Marvin', [v w], h);
     XrealAUX = apoloGetLocationMRobot('Marvin');
     
-    Xrealk(1) = XrealAUX(2);
-    Xrealk(2) = XrealAUX(1);
+    Xrealk(1) = XrealAUX(1);
+    Xrealk(2) = XrealAUX(2);
     Xrealk(3) = XrealAUX(4);
     Xreal(:,k) = Xrealk;  % Para mantener una historia del recorrido
  
@@ -69,41 +69,39 @@ while t<tmax
     x_sum = 0;
     y_sum = 0;
     ang_sum = 0;
-    for j = 1:size(baliza.id)
+    x_est_laser = 0;
+    y_est_laser = 0;
+    ang_est_laser = 0;
+    
+    for j = 1:length(baliza.distance)
+        id = baliza.id(j);
         % Extaccion de las medidas realizadas por el laser
         distancia_laser = baliza.distance(j);
         angulo_laser = baliza.angle(j);
+        disLM = sqrt(LM(id,1)^2 + LM(id,2)^2);
+        angLM = atan2(LM(id,2),LM(id,1));
         % Estimacion de la posicion a partir de los datos obtenidos por el
         % laser
-        x_est_laser = LM(j,1) - (-distancia_laser*sin(angulo_laser) + laserPosXRef);
-        y_est_laser = LM(j,2) - (distancia_laser*cos(angulo_laser) + laserPosYRef);
-        ang_est_laser = atan2(LM(j,2),LM(j,1)) - (angulo_laser + laserAngRef - pi/2);
-        % Media estimacion
-        x_sum = x_sum + x_est_laser;
-        y_sum = y_sum + y_est_laser;
-        ang_sum = ang_sum + ang_est_laser;
+        % ----------------- (ESTO POSIBLEMENTE ESTE MAL) -----------------
+        x_est_laser(j) = (LM(id,1) - Xk(1))*cos(Xk(3)) + (LM(id,2) - Xk(2))*sin(Xk(3));
+        y_est_laser(j) = -(LM(id,1) - Xk(1))*sin(Xk(3)) + (LM(id,2) - Xk(2))*cos(Xk(3));
+        ang_est_laser(j) = angLM - Xk(3);
     end
     
-    Zk = [x_sum/j; y_sum/j; ang_sum/j];
+    Zk = [mean(x_est_laser); mean(y_est_laser); mean(ang_est_laser)];
+%     Zk = [Xrealk(1); Xrealk(2); Xrealk(3)]; % No hacer caso
+        % ----------------------------------------------------------------
 
     % Nuevo ciclo, k-1 = k.
     Xk_1 = Xk;
     Pk_1 = Pk;
     
     % Prediccion del estado (Modelo de odometria)
-       
-%     Ak = [1 0 0;
-%           0 1 0;
-%           0 0 1                             ]; % Fi
-%       
-%     Bk = [(v*h*sin(Xk_1(3)+w*h/2));
-%           (v*h*cos(Xk_1(3)+w*h/2));
-%            w*h                                ]; % G
-%        
 
-    X_k = [(Xk_1(1) + v*h*sin(Xk_1(3)+(w*h/2)));
-           (Xk_1(2) + v*h*cos(Xk_1(3)+(w*h/2)));
+    X_k = [(Xk_1(1) + v*h*cos(Xk_1(3)+(w*h/2)));
+           (Xk_1(2) + v*h*sin(Xk_1(3)+(w*h/2)));
            (Xk_1(3) + w*h)];
+       
     Ak = [1 0 (-v*h*sin(Xk_1(3)+w*h/2));
           0 1 (v*h*cos(Xk_1(3)+w*h/2));
           0 0 1                             ]; % Fi
@@ -114,9 +112,11 @@ while t<tmax
     P_k = Ak*Pk_1*((Ak)') + Bk*Qk_1*((Bk)');
 
     % Prediccion de la medida (Modelo de observacion)
-    Zk_ = Zk;
+    % ----------------- (ESTO POSIBLEMENTE ESTE MAL) -----------------
+    Zk_ = X_k;
     Hk = [1 0 0; 0 1 0; 0 0 1];
-
+    % ----------------------------------------------------------------
+    
     % Comparacion
     Yk = Zk-Zk_;
 %     for r=1:3
@@ -151,10 +151,10 @@ figure(1);
 axis([-4 4 -4 4])
 hold on
 plot(Xreal(1,:), Xreal(2,:), 'r');
-plot(Xestimado(1,:), Xestimado(2,:), '--b');
-% for i=1:t/h
-%    plot(Xestimado(1,i), Xestimado(2,i), '.b');
-% end
+% plot(Xestimado(1,:), Xestimado(2,:), '--b');
+for i=1:t/h
+   plot(Xestimado(1,i), Xestimado(2,i), '.b');
+end
 hold off
 legend('Movimiento Real','Estimación')
 

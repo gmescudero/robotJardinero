@@ -65,39 +65,23 @@ while t<tmax
     Xreal(:,k) = Xrealk;  % Para mantener una historia del recorrido
  
     % Se realiza una busqueda de balizas por el laser
-    baliza = apoloGetLaserLandMarks('LMS100');
-    x_sum = 0;
-    y_sum = 0;
-    ang_sum = 0;
-    x_est_laser = 0;
-    y_est_laser = 0;
-    ang_est_laser = 0;
-    
+    Zk = [];
+    baliza = apoloGetLaserLandMarks('LMS100');    
     for j = 1:length(baliza.distance)
         id = baliza.id(j);
         % Extaccion de las medidas realizadas por el laser
         distancia_laser = baliza.distance(j);
         angulo_laser = baliza.angle(j);
-        disLM = sqrt(LM(id,1)^2 + LM(id,2)^2);
-        angLM = atan2(LM(id,2),LM(id,1));
-        % Estimacion de la posicion a partir de los datos obtenidos por el
-        % laser
-        % ----------------- (ESTO POSIBLEMENTE ESTE MAL) -----------------
-        x_est_laser(j) = (LM(id,1) - Xk(1))*cos(Xk(3)) + (LM(id,2) - Xk(2))*sin(Xk(3));
-        y_est_laser(j) = -(LM(id,1) - Xk(1))*sin(Xk(3)) + (LM(id,2) - Xk(2))*cos(Xk(3));
-        ang_est_laser(j) = angLM - Xk(3);
+        Zk(2*j-1) = distancia_laser;
+        Zk(2*j) = angulo_laser;
     end
-    
-    Zk = [mean(x_est_laser); mean(y_est_laser); mean(ang_est_laser)];
 %     Zk = [Xrealk(1); Xrealk(2); Xrealk(3)]; % No hacer caso
-        % ----------------------------------------------------------------
 
     % Nuevo ciclo, k-1 = k.
     Xk_1 = Xk;
     Pk_1 = Pk;
     
     % Prediccion del estado (Modelo de odometria)
-
     X_k = [(Xk_1(1) + v*h*cos(Xk_1(3)+(w*h/2)));
            (Xk_1(2) + v*h*sin(Xk_1(3)+(w*h/2)));
            (Xk_1(3) + w*h)];
@@ -113,20 +97,20 @@ while t<tmax
 
     % Prediccion de la medida (Modelo de observacion)
     % ----------------- (ESTO POSIBLEMENTE ESTE MAL) -----------------
-    Zk_ = X_k;
-    Hk = [1 0 0; 0 1 0; 0 0 1];
+    % Depende de que modelo de lectura de balizas estemos usando
+    Zk_ = [];
+    for j = 1:length(baliza.distance)
+        id = baliza.id(j);
+        incX = LM(id,1)-X_k(1);
+        incY = LM(id,2)-X_k(2);
+        Zk_(2*j-1) = sqrt((incX)^2 + (incY)^2);
+        Zk_(2*j) = X_k(3)-atan2(incY,incX);
+        Hk(j,:) = [1 0];
+    end
     % ----------------------------------------------------------------
     
     % Comparacion
-    Yk = Zk-Zk_;
-%     for r=1:3
-%         if Yk(r)>pi
-%             Yk(r) = Yk(r) - 2*pi;
-%         end
-%         if Yk(r)<(-pi)
-%             Yk(r) = Yk(r) + 2*pi;
-%         end
-%     end
+    Yk = Zk-Zk_
     Sk = Hk*P_k*((Hk)') + Rk;
     Wk = P_k*((Hk)')/Sk;
 

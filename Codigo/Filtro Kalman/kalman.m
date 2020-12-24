@@ -72,8 +72,11 @@ while t<tmax
         % Extaccion de las medidas realizadas por el laser
         distancia_laser = baliza.distance(j);
         angulo_laser = baliza.angle(j);
-        Zk(2*j-1) = distancia_laser;
-        Zk(2*j) = angulo_laser;
+        incX = LM(id,1) - Xk(1);
+        incY = LM(id,2) - Xk(2);
+        Zk(3*j-2) = incX*cos(Xk(3)) + incY*sin(Xk(3));
+        Zk(3*j-1) = -incX*sin(Xk(3)) + incY*cos(Xk(3));
+        Zk(3*j) = atan2(LM(id,2),LM(id,1)) - Xk(3);
     end
 %     Zk = [Xrealk(1); Xrealk(2); Xrealk(3)]; % No hacer caso
 
@@ -105,12 +108,15 @@ while t<tmax
         id = baliza.id(j);
         incX = LM(id,1)-X_k(1);
         incY = LM(id,2)-X_k(2);
-        Zk_(2*j-1) = sqrt((incX)^2 + (incY)^2);
-        Zk_(2*j) = X_k(3)-atan2(incY,incX);
-        Hk(2*j-1,:) = [incX/(incX^2+incY^2) incY/(incX^2+incY^2) -1];
-        Hk(2*j,:) = [0 0 1];
-        Rk_aux(2*j-1) = 0.001;
-        Rk_aux(2*j) = 0.001;
+        Zk_(3*j-2) = incX*cos(X_k(3)) + incY*sin(X_k(3));
+        Zk_(3*j-1) = -incX*sin(X_k(3)) + incY*cos(X_k(3));
+        Zk_(3*j) = atan2(LM(id,2),LM(id,1)) - X_k(3);
+        Hk(3*j-2,:) = [-cos(Xk(3)) sin(Xk(3)) -incX*cos(Xk(3))+incY*sin(Xk(3))];
+        Hk(3*j-1,:) = [sin(Xk(3)) -cos(Xk(3)) incX*sin(Xk(3))-incY*cos(Xk(3))];
+        Hk(3*j,:) = [0 0 -1];
+        Rk_aux(3*j-1) = 0.001;
+        Rk_aux(3*j-1) = 0.001;
+        Rk_aux(3*j) = 0.001;
     end
     Rk = diag(Rk_aux);
     % ----------------------------------------------------------------

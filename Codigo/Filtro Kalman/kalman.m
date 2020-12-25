@@ -2,13 +2,14 @@
 clearvars; clc;
 
 % Definimos una trayectoria circular
-h = 0.5;    % Actualizacion de sensores
+h = 0.1;    % Actualizacion de sensores
 v = 0.1;    % Velocidad lineal
-w = 0.1;    % Velocidad angular
+w = 0.07;    % Velocidad angular
 
 % Posicion robot 
 robot.pos = [0, 0, 0];
 robot.ang = [pi/2];
+apoloPlaceMRobot('Marvin', robot.pos, robot.ang);
 
 % Posicion del laser respecto al robot
 laser.pos(1) = 0.1;
@@ -23,24 +24,22 @@ laserAngRef = robot.ang + laser.ang;
 % Inicializamos la posición inicial y su covarianza
 Xrealk = [robot.pos(1); robot.pos(2); robot.ang];
 Xk = [0; 0; pi/2];
-apoloPlaceMRobot('Marvin', robot.pos, robot.ang);
 
 % Varianza del ruido del proceso 
-Qd = 0.001*v;
-Qb = 0.001*w;
+Qd = 1e-6*v;
+Qb = 1e-6*w;
 Qk_1 = [Qd 0; 0 Qb];
 
 % Inicializacion matriz P
-Pxini = 0.001;
-Pyini = 0.001;
-Pthetaini = 0.001;
+Pxini = 1e-3;
+Pyini = 1e-3;
+Pthetaini = 1e-3;
 Pk = [Pxini 0 0; 0 Pyini 0 ; 0 0 Pthetaini];
 
 % Varianza en la medida
-% R1 = 0.0016278;
-% R2 = 0.0020709;
-% R3 = 0.00049331;
-% Rk = [R1 0 0; 0 R2 0; 0 0 R3];
+R1 = 0.0016278;
+R2 = 0.0020709;
+R3 = 0.00049331;
 
 % Posicion balizas
 LM(1,:) = [-3.9, 0.0, 0.2];
@@ -51,7 +50,8 @@ LM(5,:) = [3.9, 0.0, 0.2];
 
 % Algoritmo
 t = 0;
-tmax = 30;
+tmax = 200;
+tAcum = [];
 k = 1;
 Ktotal = zeros(3);      
 while t<tmax
@@ -59,6 +59,7 @@ while t<tmax
     apoloMoveMRobot('Marvin', [v w], h);
     XrealAUX = apoloGetLocationMRobot('Marvin');
     
+    % Obtenemos la posicion real del robot
     Xrealk(1) = XrealAUX(1);
     Xrealk(2) = XrealAUX(2);
     Xrealk(3) = XrealAUX(4);
@@ -74,9 +75,9 @@ while t<tmax
         angulo_laser = baliza.angle(j);
         incX = LM(id,1) - Xk(1);
         incY = LM(id,2) - Xk(2);
-        Zk(3*j-2) = incX*cos(Xk(3)) + incY*sin(Xk(3));
-        Zk(3*j-1) = -incX*sin(Xk(3)) + incY*cos(Xk(3));
-        Zk(3*j) = atan2(LM(id,2),LM(id,1)) - Xk(3);
+        Zk(3*j-2,1) = incX*cos(Xk(3)) + incY*sin(Xk(3));
+        Zk(3*j-1,1) = -incX*sin(Xk(3)) + incY*cos(Xk(3));
+        Zk(3*j,1) = atan2(LM(id,2),LM(id,1)) - Xk(3);
     end
 %     Zk = [Xrealk(1); Xrealk(2); Xrealk(3)]; % No hacer caso
 
@@ -106,17 +107,20 @@ while t<tmax
     Hk = [];
     for j = 1:length(baliza.distance)
         id = baliza.id(j);
+        % Calculo de matriz Zk_
         incX = LM(id,1)-X_k(1);
         incY = LM(id,2)-X_k(2);
-        Zk_(3*j-2) = incX*cos(X_k(3)) + incY*sin(X_k(3));
-        Zk_(3*j-1) = -incX*sin(X_k(3)) + incY*cos(X_k(3));
-        Zk_(3*j) = atan2(LM(id,2),LM(id,1)) - X_k(3);
+        Zk_(3*j-2,1) = incX*cos(X_k(3)) + incY*sin(X_k(3));
+        Zk_(3*j-1,1) = -incX*sin(X_k(3)) + incY*cos(X_k(3));
+        Zk_(3*j,1) = atan2(LM(id,2),LM(id,1)) - X_k(3);
+        % Calculo de matriz H
         Hk(3*j-2,:) = [-cos(Xk(3)) sin(Xk(3)) -incX*cos(Xk(3))+incY*sin(Xk(3))];
         Hk(3*j-1,:) = [sin(Xk(3)) -cos(Xk(3)) incX*sin(Xk(3))-incY*cos(Xk(3))];
         Hk(3*j,:) = [0 0 -1];
-        Rk_aux(3*j-1) = 0.001;
-        Rk_aux(3*j-1) = 0.001;
-        Rk_aux(3*j) = 0.001;
+        % Calculo de matriz Rk
+        Rk_aux(3*j-2) = R1;
+        Rk_aux(3*j-1) = R2;
+        Rk_aux(3*j) = R3;
     end
     Rk = diag(Rk_aux);
     % ----------------------------------------------------------------
@@ -124,13 +128,18 @@ while t<tmax
     % Comparacion
     Yk = Zk-Zk_;
     Sk = Hk*P_k*((Hk)') + Rk;
-    Wk = P_k*((Hk)')/Sk;
 
     % Correccion
-    Xk = X_k + Wk*Yk';
+    Wk = P_k*((Hk)')/Sk;
+    Xk = X_k + Wk*Yk;
     Pk = (eye(3) - Wk*Hk)*P_k;
     
     %Sólo para almacenarlo
+    if Xk(3) < -pi
+        Xk(3) = Xk(3)+2*pi;
+    elseif Xk(3) > pi
+        Xk(3) = Xk(3)-2*pi;
+    end
     Xestimado(:,k) = Xk;
     Pacumulado(1,k) = Pk(1,1);
     Pacumulado(2,k) = Pk(2,2);
@@ -138,13 +147,16 @@ while t<tmax
     
     % Actualizacion del tiempo
     t = t+h;
+    tAcum(end+1) = t;
     k = k + 1;
     apoloUpdate;
 end 
 
 % Representacion grafica
 figure(1);
+subplot(3,2,[1 3 5])
 axis([-4 4 -4 4])
+
 hold on
 plot(Xreal(1,:), Xreal(2,:), 'r');
 % plot(Xestimado(1,:), Xestimado(2,:), '--b');
@@ -152,6 +164,34 @@ for i=1:t/h
    plot(Xestimado(1,i), Xestimado(2,i), '.b');
 end
 hold off
+title('Trayectoria')
+xlabel('x(m)')
+ylabel('y(m)')
 legend('Movimiento Real','Estimación')
+
+subplot(3,2,2)
+plot(tAcum,Xreal(1,:),'r');
+hold on
+plot(tAcum,Xestimado(1,:),'.b');
+hold off
+xlabel('t(s)')
+ylabel('x(m)')
+
+subplot(3,2,4)
+plot(tAcum,Xreal(2,:),'r');
+hold on
+plot(tAcum,Xestimado(2,:),'.b');
+hold off
+xlabel('t(s)')
+ylabel('y(m)')
+
+subplot(3,2,6)
+plot(tAcum,Xreal(3,:),'r');
+hold on
+plot(tAcum,Xestimado(3,:),'.b');
+hold off
+xlabel('t(s)')
+ylabel('\theta(m)')
+
 
 

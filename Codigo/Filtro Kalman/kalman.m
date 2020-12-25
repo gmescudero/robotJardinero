@@ -2,12 +2,12 @@
 clearvars; clc;
 
 % Definimos una trayectoria circular
-h = 0.1;    % Actualizacion de sensores
+h = 0.5;    % Actualizacion de sensores
 v = 0.1;    % Velocidad lineal
-w = 0.07;    % Velocidad angular
+w = 0.05;    % Velocidad angular
 
 % Posicion robot 
-robot.pos = [0, 0, 0];
+robot.pos = [2, 0, 0];
 robot.ang = [pi/2];
 apoloPlaceMRobot('Marvin', robot.pos, robot.ang);
 
@@ -23,23 +23,23 @@ laserAngRef = robot.ang + laser.ang;
 
 % Inicializamos la posición inicial y su covarianza
 Xrealk = [robot.pos(1); robot.pos(2); robot.ang];
-Xk = [0; 0; pi/2];
+Xk = [2; 0; pi/2];
 
 % Varianza del ruido del proceso 
-Qd = 1e-6*v;
-Qb = 1e-6*w;
+Qd = 0*v;
+Qb = 0*w;
 Qk_1 = [Qd 0; 0 Qb];
 
 % Inicializacion matriz P
-Pxini = 1e-3;
-Pyini = 1e-3;
-Pthetaini = 1e-3;
+Pxini = 1e-6;
+Pyini = 1e-6;
+Pthetaini = 1e-6;
 Pk = [Pxini 0 0; 0 Pyini 0 ; 0 0 Pthetaini];
 
 % Varianza en la medida
-R1 = 0.0016278;
-R2 = 0.0020709;
-R3 = 0.00049331;
+R1 = 1e-6;
+R2 = 1e-6;
+R3 = 1e-6;
 
 % Posicion balizas
 LM(1,:) = [-3.9, 0.0, 0.2];
@@ -73,11 +73,11 @@ while t<tmax
         % Extaccion de las medidas realizadas por el laser
         distancia_laser = baliza.distance(j);
         angulo_laser = baliza.angle(j);
-        incX = LM(id,1) - Xk(1);
-        incY = LM(id,2) - Xk(2);
-        Zk(3*j-2,1) = incX*cos(Xk(3)) + incY*sin(Xk(3));
-        Zk(3*j-1,1) = -incX*sin(Xk(3)) + incY*cos(Xk(3));
-        Zk(3*j,1) = atan2(LM(id,2),LM(id,1)) - Xk(3);
+        incX = LM(id,1) - Xrealk(1);
+        incY = LM(id,2) - Xrealk(2);
+        Zk(3*j-2,1) = incX*cos(Xrealk(3)) + incY*sin(Xrealk(3));
+        Zk(3*j-1,1) = -incX*sin(Xrealk(3)) + incY*cos(Xrealk(3));
+        Zk(3*j,1) = atan2(LM(id,2),LM(id,1)) - Xrealk(3);
     end
 %     Zk = [Xrealk(1); Xrealk(2); Xrealk(3)]; % No hacer caso
 
@@ -98,7 +98,13 @@ while t<tmax
            0                     1                                 ]; % G
        
     P_k = Ak*Pk_1*((Ak)') + Bk*Qk_1*((Bk)');
-
+    
+    if X_k(3) < -pi
+        X_k(3) = X_k(3)+2*pi;
+    elseif X_k(3) > pi
+        X_k(3) = X_k(3)-2*pi;
+    end
+    
     % Prediccion de la medida (Modelo de observacion)
     % ----------------- (ESTO POSIBLEMENTE ESTE MAL) -----------------
     % Depende de que modelo de lectura de balizas estemos usando
@@ -141,6 +147,9 @@ while t<tmax
         Xk(3) = Xk(3)-2*pi;
     end
     Xestimado(:,k) = Xk;
+%     Zk1acumulado(k) = Zk(1);
+%     Zk2acumulado(k) = Zk(2);
+%     Zk3acumulado(k) = Zk(3);
     Pacumulado(1,k) = Pk(1,1);
     Pacumulado(2,k) = Pk(2,2);
     Pacumulado(3,k) = Pk(3,3);
@@ -151,6 +160,13 @@ while t<tmax
     k = k + 1;
     apoloUpdate;
 end 
+
+% mean(Zk1acumulado)
+% std(Zk1acumulado)
+% mean(Zk2acumulado)
+% std(Zk2acumulado)
+% mean(Zk3acumulado)
+% std(Zk3acumulado)
 
 % Representacion grafica
 figure(1);

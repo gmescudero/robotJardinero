@@ -1,45 +1,36 @@
-function [Zest] = pos2measures(...
-    X, ...  % [] Position
-    v)      % []/0 Measuring noise
+function [Zest,H] = pos2measures(...
+    X)  % [] Position
+
 % Land Marks positions
-LM = [... % LM(lmID,[X,Y])
-    [10.35  5.55];
-    [0      0   ];
-    [0      13.5];
-    [26.5	13.5];
-    [26.5	0   ];
-    [9.2	6.75];
-    [11.3	6.75];
-    [10.4	8   ];
-    [15.7	9.9 ];
-    [15.5	3.3 ];
-    [20.5	7.3 ];
-    [20.5	6.1	];
-    [20.3	12.2];
-    [20.3	1.1 ];
-    [24     5.6 ];
-    [23.6	7.6 ];
-    [22.3	8.4 ];
-    [22.5	5.5 ];
-    [11.3	0.7 ];
-    [11.4	12.4];
-    [5.8	10.1];
-    [5.9	4.0 ];
-    [1.4	7.2 ];
-];
+global LM
+
 [lmNum,~] = size(LM);
-Zest = zeros(lmNum,2);
+Zest = zeros(lmNum*3,1);
+H = zeros(3,lmNum*3);
 
-%% Compute
-for i=1:lmNum
-    % distance 
-    Zest(i,1) = sqrt((LM(i,1) - X(1))^2 + (LM(i,2) - X(2))^2);
-    % angle
-    Zest(i,2) = atan2(LM(i,2)-X(2),LM(i,1) - X(1)) - X(3);
+for i = 1:lmNum
+    ind = (i-1)*3; % index
+    xGap = (LM(i,1) - X(1));
+    yGap = (LM(i,2) - X(2));
+    
+%% Compute estimated measure
+    Zest(ind+1) = i;
+    Zest(ind+2) = sqrt(xGap^2 + yGap^2);
+    Zest(ind+3) = atan2(yGap,xGap) - X(3);
+    
+%% Compute H matrix TODO
+    % x 
+    H(1,ind+1) = 0;
+    H(1,ind+2) = xGap/sqrt(xGap^2 + yGap^2);
+    H(1,ind+3) = asec(yGap/xGap)^2 * (-yGap/(xGap^2));
+    % y 
+    H(2,ind+1) = 0;
+    H(2,ind+2) = yGap/sqrt(xGap^2 + yGap^2);
+    H(2,ind+3) = asec(yGap/xGap)^2/xGap;
+    % theta
+    H(3,ind+1) = 0;
+    H(3,ind+2) = 0;
+    H(3,ind+3) = -1;
 end
-
-% Add the noise
-Zest = Zest + v;
-
 end
 

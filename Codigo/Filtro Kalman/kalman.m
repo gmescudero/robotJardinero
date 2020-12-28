@@ -2,12 +2,12 @@
 clearvars; clc;
 
 % Definimos una trayectoria circular
-h = 0.5;    % Actualizacion de sensores
-v = 0.1;    % Velocidad lineal
-w = 0.05;    % Velocidad angular
+h = 0.1;    % Actualizacion de sensores
+v = 0.075;    % Velocidad lineal
+w = 0;    % Velocidad angular
 
 % Posicion robot 
-robot.pos = [2, 0, 0];
+robot.pos = [0, 0, 0];
 robot.ang = [pi/2];
 apoloPlaceMRobot('Marvin', robot.pos, robot.ang);
 
@@ -23,22 +23,22 @@ laserAngRef = robot.ang + laser.ang;
 
 % Inicializamos la posición inicial y su covarianza
 Xrealk = [robot.pos(1); robot.pos(2); robot.ang];
-Xk = [2; 0; pi/2];
+Xk = [0; 0; pi/2];
 
 % Varianza del ruido del proceso 
-Qd = 0.0180;
+Qd = 0;
 Qb = 0;
 Qk_1 = [Qd 0; 0 Qb];
 
 % Inicializacion matriz P
-Pxini = 1e-3;
-Pyini = 1e-3;
-Pthetaini = 1e-3;
+Pxini = 1e-4;
+Pyini = 1e-4;
+Pthetaini = 1e-4;
 Pk = [Pxini 0 0; 0 Pyini 0 ; 0 0 Pthetaini];
 
 % Varianza en la medida
-R1 = 0.0140;
-R2 = 0.0140;
+R1 = 0.0136;
+R2 = 0.0136;
 
 % Posicion balizas
 LM(1,:) = [-3.9, 0.0, 0.2];
@@ -47,13 +47,41 @@ LM(3,:) = [0.0, 3.9, 0.2];
 LM(4,:) = [3.9, 3.9, 0.2];
 LM(5,:) = [3.9, 0.0, 0.2];
 
+% Waypoint final
+wp = [-0.5 2];
+
+% Controlador
+Kp = 0.251;
+Ki = 0e-5;
+Kd = 0e-4;
+se = 0;
+e_ = 0;
+
 % Algoritmo
 t = 0;
-tmax = 35;
+tmax = 200;
 tAcum = [];
 k = 1;
 Ktotal = zeros(3);      
 while t<tmax
+    
+    % Comprueba si esta en el wp
+    if sqrt((wp(2)-Xk(2))^2+(wp(1)-Xk(1))^2)<0.01
+        break;
+    end
+    
+    % Controlador PID
+    angwp = atan2(wp(2)-Xk(2),wp(1)-Xk(1));
+%     if angwp < -pi
+%         angwp = angwp+2*pi;
+%     elseif angwp > pi
+%         angwp = angwp-2*pi;
+%     end
+    e =  angwp - Xk(3);
+    se = se + e;
+    w = Kp*e + Ki*h*se + Kd*(e-e_)/h;
+    e_ = e;
+    
     % Avance real del robot
     apoloMoveMRobot('Marvin', [v w], h);
     XrealAUX = apoloGetLocationMRobot('Marvin');
@@ -147,6 +175,7 @@ while t<tmax
         Xk(3) = Xk(3)-2*pi;
     end
     Xestimado(:,k) = Xk;
+    Angwpacumulado(k) = angwp;
 %     Zk1acumulado(k) = Zk(1);
 %     Zk2acumulado(k) = Zk(2);
 %     Wruidoacumulado(k) = sqrt((Xrealk(1)-X_k(1))^2+(Xrealk(2)-X_k(2))^2+(Xrealk(3)-X_k(3))^2);
@@ -161,9 +190,7 @@ while t<tmax
     apoloUpdate;
 end 
 
-% mean(Zk1acumulado)
 % std(Zk1acumulado)
-% mean(Zk2acumulado)
 % std(Zk2acumulado)
 % std(Wruidoacumulado)
 
@@ -207,6 +234,12 @@ plot(tAcum,Xestimado(3,:),'.b');
 hold off
 xlabel('t(s)')
 ylabel('\theta(m)')
+
+
+figure
+plot(Angwpacumulado)
+hold on
+plot(Xestimado(3,:))
 
 
 

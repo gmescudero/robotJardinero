@@ -26,20 +26,19 @@ Xrealk = [robot.pos(1); robot.pos(2); robot.ang];
 Xk = [2; 0; pi/2];
 
 % Varianza del ruido del proceso 
-Qd = 0*v;
-Qb = 0*w;
+Qd = 0.0180;
+Qb = 0;
 Qk_1 = [Qd 0; 0 Qb];
 
 % Inicializacion matriz P
-Pxini = 1e-6;
-Pyini = 1e-6;
-Pthetaini = 1e-6;
+Pxini = 1e-3;
+Pyini = 1e-3;
+Pthetaini = 1e-3;
 Pk = [Pxini 0 0; 0 Pyini 0 ; 0 0 Pthetaini];
 
 % Varianza en la medida
-R1 = 1e-6;
-R2 = 1e-6;
-R3 = 1e-6;
+R1 = 0.0140;
+R2 = 0.0140;
 
 % Posicion balizas
 LM(1,:) = [-3.9, 0.0, 0.2];
@@ -50,7 +49,7 @@ LM(5,:) = [3.9, 0.0, 0.2];
 
 % Algoritmo
 t = 0;
-tmax = 200;
+tmax = 35;
 tAcum = [];
 k = 1;
 Ktotal = zeros(3);      
@@ -63,7 +62,7 @@ while t<tmax
     Xrealk(1) = XrealAUX(1);
     Xrealk(2) = XrealAUX(2);
     Xrealk(3) = XrealAUX(4);
-    Xreal(:,k) = Xrealk;  % Para mantener una historia del recorrido
+    Xreal(:,k) = Xrealk;        % Para mantener una historia del recorrido
  
     % Se realiza una busqueda de balizas por el laser
     Zk = [];
@@ -73,11 +72,8 @@ while t<tmax
         % Extaccion de las medidas realizadas por el laser
         distancia_laser = baliza.distance(j);
         angulo_laser = baliza.angle(j);
-        incX = LM(id,1) - Xrealk(1);
-        incY = LM(id,2) - Xrealk(2);
-        Zk(3*j-2,1) = incX*cos(Xrealk(3)) + incY*sin(Xrealk(3));
-        Zk(3*j-1,1) = -incX*sin(Xrealk(3)) + incY*cos(Xrealk(3));
-        Zk(3*j,1) = atan2(LM(id,2),LM(id,1)) - Xrealk(3);
+        Zk(2*j-1,1) = distancia_laser;
+        Zk(2*j,1) = angulo_laser;
     end
 %     Zk = [Xrealk(1); Xrealk(2); Xrealk(3)]; % No hacer caso
 
@@ -95,7 +91,7 @@ while t<tmax
           0 0 1                             ]; % Fi
     Bk = [(cos(Xk_1(3)+w*h/2)) (-0.5*v*h*sin(Xk_1(3)+w*h/2));
           (sin(Xk_1(3)+w*h/2)) (0.5*v*h*cos(Xk_1(3)+w*h/2));
-           0                     1                                 ]; % G
+           0                     1          ]; % G
        
     P_k = Ak*Pk_1*((Ak)') + Bk*Qk_1*((Bk)');
     
@@ -106,8 +102,6 @@ while t<tmax
     end
     
     % Prediccion de la medida (Modelo de observacion)
-    % ----------------- (ESTO POSIBLEMENTE ESTE MAL) -----------------
-    % Depende de que modelo de lectura de balizas estemos usando
     Zk_ = [];
     Rk_aux = [];
     Hk = [];
@@ -116,26 +110,32 @@ while t<tmax
         % Calculo de matriz Zk_
         incX = LM(id,1)-X_k(1);
         incY = LM(id,2)-X_k(2);
-        Zk_(3*j-2,1) = incX*cos(X_k(3)) + incY*sin(X_k(3));
-        Zk_(3*j-1,1) = -incX*sin(X_k(3)) + incY*cos(X_k(3));
-        Zk_(3*j,1) = atan2(LM(id,2),LM(id,1)) - X_k(3);
+        Zk_(2*j-1,1) = sqrt(incX^2+incY^2);
+        Zk_(2*j,1) = atan2(incY,incX) - X_k(3);
+        while Zk_(2*j,1)<-pi || Zk_(2*j,1)>pi
+            if Zk_(2*j,1) < -pi
+                Zk_(2*j,1) = Zk_(2*j,1)+2*pi;
+            elseif Zk_(2*j,1) > pi
+                Zk_(2*j,1) = Zk_(2*j,1)-2*pi;
+            end
+%             disp('angulo corregido')
+        end
         % Calculo de matriz H
-        Hk(3*j-2,:) = [-cos(Xk(3)) sin(Xk(3)) -incX*cos(Xk(3))+incY*sin(Xk(3))];
-        Hk(3*j-1,:) = [sin(Xk(3)) -cos(Xk(3)) incX*sin(Xk(3))-incY*cos(Xk(3))];
-        Hk(3*j,:) = [0 0 -1];
+        Hk(2*j-1,:) = [incX/sqrt(incX^2+incY^2) incY/sqrt(incX^2+incY^2) 0];
+        Hk(2*j,:) = [-incY/(incX^2+incY^2) incX/(incX^2+incY^2) -1];
         % Calculo de matriz Rk
-        Rk_aux(3*j-2) = R1;
-        Rk_aux(3*j-1) = R2;
-        Rk_aux(3*j) = R3;
+        Rk_aux(2*j-1) = R1;
+        Rk_aux(2*j) = R2;
     end
     Rk = diag(Rk_aux);
     % ----------------------------------------------------------------
     
     % Comparacion
-    Yk = Zk-Zk_;
+    Yk = -Zk+Zk_;
     Sk = Hk*P_k*((Hk)') + Rk;
 
     % Correccion
+    Wk = [];
     Wk = P_k*((Hk)')/Sk;
     Xk = X_k + Wk*Yk;
     Pk = (eye(3) - Wk*Hk)*P_k;
@@ -149,7 +149,7 @@ while t<tmax
     Xestimado(:,k) = Xk;
 %     Zk1acumulado(k) = Zk(1);
 %     Zk2acumulado(k) = Zk(2);
-%     Zk3acumulado(k) = Zk(3);
+%     Wruidoacumulado(k) = sqrt((Xrealk(1)-X_k(1))^2+(Xrealk(2)-X_k(2))^2+(Xrealk(3)-X_k(3))^2);
     Pacumulado(1,k) = Pk(1,1);
     Pacumulado(2,k) = Pk(2,2);
     Pacumulado(3,k) = Pk(3,3);
@@ -165,8 +165,7 @@ end
 % std(Zk1acumulado)
 % mean(Zk2acumulado)
 % std(Zk2acumulado)
-% mean(Zk3acumulado)
-% std(Zk3acumulado)
+% std(Wruidoacumulado)
 
 % Representacion grafica
 figure(1);

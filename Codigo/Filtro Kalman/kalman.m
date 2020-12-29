@@ -3,7 +3,7 @@ clearvars; clc;
 
 % Definimos una trayectoria circular
 h = 0.1;    % Actualizacion de sensores
-v = 0.05;    % Velocidad lineal
+v = 0.0;    % Velocidad lineal
 w = 0.0;    % Velocidad angular
 
 % Posicion robot 
@@ -59,8 +59,8 @@ wp(4,:) = [2 -2];
 
 % Controlador
 Kp = 0.15;
-Ki = 0e-3;
-Kd = 0e-3;
+Ki = 0;
+Kd = 0;
 se = 0;
 e_ = 0;
 
@@ -74,7 +74,7 @@ Ktotal = zeros(3);
 while t<tmax
     
     % Comprueba si esta en el wp y si es asi pasa al siguiente wp
-    if sqrt((wp(wpind,2)-Xk(2))^2+(wp(wpind,1)-Xk(1))^2)<0.1
+    if sqrt((wp(wpind,2)-Xk(2))^2+(wp(wpind,1)-Xk(1))^2)<0.05
         wpind = wpind+1;
         if wpind > length(wp)
             wpind = 1;
@@ -88,11 +88,17 @@ while t<tmax
     elseif angwp > pi
         angwp = angwp-2*pi;
     end
-    e =  -(angwp - Xk(3));
+    
+    e =  -(sin(angwp)-sin(Xk(3))+cos(angwp)-cos(Xk(3)));
     se = se + e;
     w = Kp*e + Ki*h*se + Kd*(e-e_)/h;
     e_ = e;
     
+    if abs(angwp-Xk(3)) < pi/2
+        v = 0.05;
+    else
+        v = 0;
+    end
     
     % Avance real del robot
     apoloMoveMRobot('Marvin', [v w], h);
@@ -168,7 +174,9 @@ while t<tmax
         Rk_aux(3*j-2) = R1;
         Rk_aux(3*j-1) = R2;
         Rk_aux(3*j) = R3;
+        
         % Calculo de matriz Yk
+        % Comparacion
         Yk(3*j-2,1) = -(Zk(3*j-2,1)-Zk_(3*j-2,1));
         Yk(3*j-1,1) = +(Zk(3*j-1,1)-Zk_(3*j-1,1));
         Yk(3*j-0,1) = +(Zk(3*j-0,1)-Zk_(3*j-0,1));
@@ -177,7 +185,6 @@ while t<tmax
     % ----------------------------------------------------------------
     
     % Comparacion
-%     Yk = -(Zk-Zk_);
     Sk = Hk*P_k*((Hk)') + Rk;
 
     % Correccion

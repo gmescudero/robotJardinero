@@ -151,5 +151,20 @@
 				{3.9,0,0.2}
 			</position>
 		</LandMark>
+		<LandMark mark_id="6" name="LM6" >
+			<position>
+				{3.9,-2.9,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="7" name="LM7" >
+			<position>
+				{0,-2.9,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="8" name="LM8" >
+			<position>
+				{-3.9,-2.9,0.2}
+			</position>
+		</LandMark>
 	</World>
 </root>

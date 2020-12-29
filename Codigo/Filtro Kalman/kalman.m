@@ -3,16 +3,20 @@ clearvars; clc;
 
 % Definimos una trayectoria circular
 h = 0.1;    % Actualizacion de sensores
-v = 0.075;    % Velocidad lineal
-w = 0;    % Velocidad angular
+v = 0.05;    % Velocidad lineal
+w = 0.0;    % Velocidad angular
 
 % Posicion robot 
-robot.pos = [0, 0, 0];
+robot.pos = [2, 0, 0];
 robot.ang = [pi/2];
 apoloPlaceMRobot('Marvin', robot.pos, robot.ang);
 
+% Inicializamos la posición inicial
+Xrealk = [robot.pos(1); robot.pos(2); robot.ang];
+Xk = [2; 0; pi/2];
+
 % Posicion del laser respecto al robot
-laser.pos(1) = 0.1;
+laser.pos(1) = 0;
 laser.pos(2) = 0;
 laser.ang = 0;
 
@@ -21,24 +25,21 @@ laserPosXRef = laser.pos(1)*cos(robot.ang) - laser.pos(2)*sin(robot.ang);
 laserPosYRef = laser.pos(1)*sin(robot.ang) + laser.pos(2)*cos(robot.ang);
 laserAngRef = robot.ang + laser.ang;
 
-% Inicializamos la posición inicial y su covarianza
-Xrealk = [robot.pos(1); robot.pos(2); robot.ang];
-Xk = [0; 0; pi/2];
-
 % Varianza del ruido del proceso 
-Qd = 0;
-Qb = 0;
-Qk_1 = [Qd 0; 0 Qb];
+Qv = 0;
+Qw = 0;
+Qk_1 = [Qv 0; 0 Qw];
 
 % Inicializacion matriz P
-Pxini = 1e-4;
-Pyini = 1e-4;
-Pthetaini = 1e-4;
-Pk = [Pxini 0 0; 0 Pyini 0 ; 0 0 Pthetaini];
+Pxini = 1e-3;
+Pyini = 1e-3;
+Pthetaini = 1e-3;
+Pk = [Pxini 0 0; 0 Pyini 0; 0 0 Pthetaini];
 
 % Varianza en la medida
-R1 = 0.0136;
-R2 = 0.0136;
+R1 = 1.5e-2;
+R2 = 1.5e-1;
+R3 = 1.5e-1;
 
 % Posicion balizas
 LM(1,:) = [-3.9, 0.0, 0.2];
@@ -46,14 +47,20 @@ LM(2,:) = [-3.9, 3.9, 0.2];
 LM(3,:) = [0.0, 3.9, 0.2];
 LM(4,:) = [3.9, 3.9, 0.2];
 LM(5,:) = [3.9, 0.0, 0.2];
+LM(6,:) = [3.9, -2.9, 0.2];
+LM(7,:) = [0, -2.9, 0.2];
+LM(8,:) = [-3.9, -2.9, 0.2];
 
 % Waypoint final
-wp = [-0.5 2];
+wp(1,:) = [2 2];
+wp(2,:) = [-2 2];
+wp(3,:) = [-2 -2];
+wp(4,:) = [2 -2];
 
 % Controlador
-Kp = 0.251;
-Ki = 0e-5;
-Kd = 0e-4;
+Kp = 0.15;
+Ki = 0e-3;
+Kd = 0e-3;
 se = 0;
 e_ = 0;
 
@@ -62,25 +69,30 @@ t = 0;
 tmax = 200;
 tAcum = [];
 k = 1;
+wpind = 1;
 Ktotal = zeros(3);      
 while t<tmax
     
-    % Comprueba si esta en el wp
-    if sqrt((wp(2)-Xk(2))^2+(wp(1)-Xk(1))^2)<0.01
-        break;
+    % Comprueba si esta en el wp y si es asi pasa al siguiente wp
+    if sqrt((wp(wpind,2)-Xk(2))^2+(wp(wpind,1)-Xk(1))^2)<0.1
+        wpind = wpind+1;
+        if wpind > length(wp)
+            wpind = 1;
+        end
     end
     
     % Controlador PID
-    angwp = atan2(wp(2)-Xk(2),wp(1)-Xk(1));
-%     if angwp < -pi
-%         angwp = angwp+2*pi;
-%     elseif angwp > pi
-%         angwp = angwp-2*pi;
-%     end
-    e =  angwp - Xk(3);
+    angwp = atan2(wp(wpind,2)-Xk(2),wp(wpind,1)-Xk(1));
+    if angwp < -pi
+        angwp = angwp+2*pi;
+    elseif angwp > pi
+        angwp = angwp-2*pi;
+    end
+    e =  -(angwp - Xk(3));
     se = se + e;
     w = Kp*e + Ki*h*se + Kd*(e-e_)/h;
     e_ = e;
+    
     
     % Avance real del robot
     apoloMoveMRobot('Marvin', [v w], h);
@@ -97,13 +109,13 @@ while t<tmax
     baliza = apoloGetLaserLandMarks('LMS100');    
     for j = 1:length(baliza.distance)
         id = baliza.id(j);
-        % Extaccion de las medidas realizadas por el laser
+        % Extraccion de las medidas realizadas por el laser
         distancia_laser = baliza.distance(j);
         angulo_laser = baliza.angle(j);
-        Zk(2*j-1,1) = distancia_laser;
-        Zk(2*j,1) = angulo_laser;
+        Zk(3*j-2,1) = distancia_laser;
+        Zk(3*j-1,1) = sin(angulo_laser);
+        Zk(3*j,1) = cos(angulo_laser);
     end
-%     Zk = [Xrealk(1); Xrealk(2); Xrealk(3)]; % No hacer caso
 
     % Nuevo ciclo, k-1 = k.
     Xk_1 = Xk;
@@ -133,52 +145,55 @@ while t<tmax
     Zk_ = [];
     Rk_aux = [];
     Hk = [];
+    Yk = [];
     for j = 1:length(baliza.distance)
         id = baliza.id(j);
         % Calculo de matriz Zk_
         incX = LM(id,1)-X_k(1);
         incY = LM(id,2)-X_k(2);
-        Zk_(2*j-1,1) = sqrt(incX^2+incY^2);
-        Zk_(2*j,1) = atan2(incY,incX) - X_k(3);
-        while Zk_(2*j,1)<-pi || Zk_(2*j,1)>pi
-            if Zk_(2*j,1) < -pi
-                Zk_(2*j,1) = Zk_(2*j,1)+2*pi;
-            elseif Zk_(2*j,1) > pi
-                Zk_(2*j,1) = Zk_(2*j,1)-2*pi;
-            end
-%             disp('angulo corregido')
+        incAng = atan2(incY,incX) - X_k(3);
+        if incAng < -pi
+            incAng = incAng+2*pi;
+        elseif incAng > pi
+            incAng = incAng-2*pi;
         end
-        % Calculo de matriz H
-        Hk(2*j-1,:) = [incX/sqrt(incX^2+incY^2) incY/sqrt(incX^2+incY^2) 0];
-        Hk(2*j,:) = [-incY/(incX^2+incY^2) incX/(incX^2+incY^2) -1];
+        Zk_(3*j-2,1) = sqrt(incX^2+incY^2);
+        Zk_(3*j-1,1) = sin(incAng);
+        Zk_(3*j,1) = cos(incAng);
+        % Calculo de matriz Hk
+        Hk(3*j-2,:) = [incX/sqrt(incX^2+incY^2) incY/sqrt(incX^2+incY^2) 0];
+        Hk(3*j-1,:) = [-incY*cos(-incAng)/(incX^2+incY^2) incX*cos(-incAng)/(incX^2+incY^2) -cos(-incAng)];
+        Hk(3*j,:) = [incY*sin(-incAng)/(incX^2+incY^2) -incX*sin(incAng)/(incX^2+incY^2) -sin(-incAng)];
         % Calculo de matriz Rk
-        Rk_aux(2*j-1) = R1;
-        Rk_aux(2*j) = R2;
+        Rk_aux(3*j-2) = R1;
+        Rk_aux(3*j-1) = R2;
+        Rk_aux(3*j) = R3;
+        % Calculo de matriz Yk
+        Yk(3*j-2,1) = -(Zk(3*j-2,1)-Zk_(3*j-2,1));
+        Yk(3*j-1,1) = +(Zk(3*j-1,1)-Zk_(3*j-1,1));
+        Yk(3*j-0,1) = +(Zk(3*j-0,1)-Zk_(3*j-0,1));
     end
     Rk = diag(Rk_aux);
     % ----------------------------------------------------------------
     
     % Comparacion
-    Yk = -Zk+Zk_;
+%     Yk = -(Zk-Zk_);
     Sk = Hk*P_k*((Hk)') + Rk;
 
     % Correccion
-    Wk = [];
     Wk = P_k*((Hk)')/Sk;
     Xk = X_k + Wk*Yk;
     Pk = (eye(3) - Wk*Hk)*P_k;
     
-    %Sólo para almacenarlo
+%     % Correcion de angulo
     if Xk(3) < -pi
         Xk(3) = Xk(3)+2*pi;
     elseif Xk(3) > pi
         Xk(3) = Xk(3)-2*pi;
     end
+    
+    %Sólo para almacenarlo
     Xestimado(:,k) = Xk;
-    Angwpacumulado(k) = angwp;
-%     Zk1acumulado(k) = Zk(1);
-%     Zk2acumulado(k) = Zk(2);
-%     Wruidoacumulado(k) = sqrt((Xrealk(1)-X_k(1))^2+(Xrealk(2)-X_k(2))^2+(Xrealk(3)-X_k(3))^2);
     Pacumulado(1,k) = Pk(1,1);
     Pacumulado(2,k) = Pk(2,2);
     Pacumulado(3,k) = Pk(3,3);
@@ -189,10 +204,6 @@ while t<tmax
     k = k + 1;
     apoloUpdate;
 end 
-
-% std(Zk1acumulado)
-% std(Zk2acumulado)
-% std(Wruidoacumulado)
 
 % Representacion grafica
 figure(1);
@@ -234,12 +245,6 @@ plot(tAcum,Xestimado(3,:),'.b');
 hold off
 xlabel('t(s)')
 ylabel('\theta(m)')
-
-
-figure
-plot(Angwpacumulado)
-hold on
-plot(Xestimado(3,:))
 
 
 

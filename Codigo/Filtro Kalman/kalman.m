@@ -2,7 +2,7 @@
 clearvars; clc;
 
 % Definimos una trayectoria circular
-h = 0.1;    % Actualizacion de sensores
+h = 0.25;    % Actualizacion de sensores
 v = 0.0;    % Velocidad lineal
 w = 0.0;    % Velocidad angular
 
@@ -38,8 +38,8 @@ Pk = [Pxini 0 0; 0 Pyini 0; 0 0 Pthetaini];
 
 % Varianza en la medida
 R1 = 1.5e-2;
-R2 = 1.5e-1;
-R3 = 1.5e-1;
+R2 = 1.5e-2;
+R3 = 1.5e-2;
 
 % Posicion balizas
 LM(1,:) = [-3.9, 0.0, 0.2];
@@ -60,7 +60,7 @@ wp(4,:) = [2 -2];
 % Controlador
 Kp = 0.15;
 Ki = 0;
-Kd = 0;
+Kd = 0.10;
 se = 0;
 e_ = 0;
 
@@ -74,7 +74,7 @@ Ktotal = zeros(3);
 while t<tmax
     
     % Comprueba si esta en el wp y si es asi pasa al siguiente wp
-    if sqrt((wp(wpind,2)-Xk(2))^2+(wp(wpind,1)-Xk(1))^2)<0.05
+    if sqrt((wp(wpind,2)-Xk(2))^2+(wp(wpind,1)-Xk(1))^2)<0.1
         wpind = wpind+1;
         if wpind > length(wp)
             wpind = 1;
@@ -83,21 +83,21 @@ while t<tmax
     
     % Controlador PID
     angwp = atan2(wp(wpind,2)-Xk(2),wp(wpind,1)-Xk(1));
-    if angwp < -pi
-        angwp = angwp+2*pi;
-    elseif angwp > pi
-        angwp = angwp-2*pi;
-    end
-    
-    e =  -(sin(angwp)-sin(Xk(3))+cos(angwp)-cos(Xk(3)));
+%     if angwp < -pi
+%         angwp = angwp+2*pi;
+%     elseif angwp > pi
+%         angwp = angwp-2*pi;
+%     end
+
+    e =(sin(angwp-Xk(3)) + (1-cos(angwp-Xk(3))));
     se = se + e;
     w = Kp*e + Ki*h*se + Kd*(e-e_)/h;
     e_ = e;
     
-    if abs(angwp-Xk(3)) < pi/2
-        v = 0.05;
+    if abs(angwp-Xk(3)) < pi/10
+        v = 0.2;
     else
-        v = 0;
+        v = 0.075;
     end
     
     % Avance real del robot

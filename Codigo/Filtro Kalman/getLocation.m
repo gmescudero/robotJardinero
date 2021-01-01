@@ -1,15 +1,18 @@
-function [Xk,Pk] = getLocation(robot,laser,LM,Xk,Pk)
+function [Xk,Pk] = getLocation(robot,laser,LM,Xk,Pk,h,v,w)
 
+%% CONFIG
 % Varianza del ruido del proceso 
-Qv = 0;
-Qw = 0;
-Qk_1 = [Qv 0; 0 Qw];
+Qv = 1e-9;
+Qw = 1e-9;
+% Qk_1 = diag([Qv,Qv,Qw]);
+Qk_1 = diag([Qv,Qw]);
 
 % Varianza en la medida
 R1 = 1.5e-2;
 R2 = 1.5e-2;
 R3 = 1.5e-2;
 
+%% RETRIEVE LM
 % Se realiza una busqueda de balizas por el laser
 baliza = apoloGetLaserLandMarks(laser);
 Zk = zeros(3*length(baliza.distance),1);
@@ -25,14 +28,18 @@ end
 Xk_1 = Xk;
 Pk_1 = Pk;
 
-% Prediccion del estado (Modelo de odometria)
-Uk = apoloGetOdometry(robot);
-apoloResetOdometry(robot);
+%% Prediccion del estado (Modelo de odometria)
 
-X_k = Xk_1 + Uk;
+% TODO: For some reason the apolo odometry does not work correctly
+% Uk = (apoloGetOdometry(robot))';
+% apoloResetOdometry(robot);
+% 
+% Ak = h*eye(3);
+% Bk = h*eye(3);
 
-v = sqrt(Uk(1)^2 + Uk(2)^2);
-w = Uk(3);
+Uk = [v*h*cos(Xk_1(3)+(w*h/2));
+      v*h*sin(Xk_1(3)+(w*h/2));
+      w*h];
 
 Ak = [  1 0 (-v*h*sin(Xk_1(3)+w*h/2));
         0 1 ( v*h*cos(Xk_1(3)+w*h/2));
@@ -40,8 +47,10 @@ Ak = [  1 0 (-v*h*sin(Xk_1(3)+w*h/2));
 Bk = [  (cos(Xk_1(3)+w*h/2)) (-0.5*v*h*sin(Xk_1(3)+w*h/2));
         (sin(Xk_1(3)+w*h/2)) ( 0.5*v*h*cos(Xk_1(3)+w*h/2));
         0                     1          ]; % G
-
+    
+X_k = Xk_1 + Uk;
 P_k = Ak*Pk_1*((Ak)') + Bk*Qk_1*((Bk)');
+
 
 if X_k(3) < -pi
     X_k(3) = X_k(3)+2*pi;
@@ -49,10 +58,10 @@ elseif X_k(3) > pi
     X_k(3) = X_k(3)-2*pi;
 end
 
-% Prediccion de la medida (Modelo de observacion)
+%% Prediccion de la medida (Modelo de observacion)
 Zk_     = zeros(3*length(baliza.distance),1);
 Rk_aux  = zeros(3*length(baliza.distance),1);
-Hk      = zeros(3*length(baliza.distance),3*length(baliza.distance));
+Hk      = zeros(3*length(baliza.distance),3);
 Yk      = zeros(3*length(baliza.distance),1);
 for j = 1:length(baliza.distance)
     id = baliza.id(j);
@@ -78,7 +87,7 @@ for j = 1:length(baliza.distance)
     Rk_aux(3*j)     = R3;
     
     % Calculo de matriz Yk
-    % Comparacion
+    %% Comparacion
     Yk(3*j-2,1) = -(Zk(3*j-2,1)-Zk_(3*j-2,1));
     Yk(3*j-1,1) = +(Zk(3*j-1,1)-Zk_(3*j-1,1));
     Yk(3*j-0,1) = +(Zk(3*j-0,1)-Zk_(3*j-0,1));
@@ -86,15 +95,15 @@ end
 Rk = diag(Rk_aux);
 % ----------------------------------------------------------------
 
-% Comparacion
+%% Comparacion
 Sk = Hk*P_k*((Hk)') + Rk;
 
-% Correccion
+%% Correccion
 Wk = P_k*((Hk)')/Sk;
 Xk = X_k + Wk*Yk;
 Pk = (eye(3) - Wk*Hk)*P_k;
 
-%     % Correcion de angulo
+% Correcion de angulo
 if Xk(3) < -pi
     Xk(3) = Xk(3)+2*pi;
 elseif Xk(3) > pi

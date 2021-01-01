@@ -7,15 +7,17 @@ v = 0.0;    % Velocidad lineal
 w = 0.0;    % Velocidad angular
 
 % Posicion robot
-robot.pos = [2, 0, 0];
-robot.ang = [pi/2];
-apoloPlaceMRobot('Marvin', robot.pos, robot.ang);
+robot.name = 'Marvin';
+robot.pos  = [2, 0, 0];
+robot.ang  = [pi/2];
+apoloPlaceMRobot(robot.name, robot.pos, robot.ang);
 
 % Inicializamos la posición inicial
 Xrealk = [robot.pos(1); robot.pos(2); robot.ang];
-Xk = [2; 0; pi/2];
+Xk = Xrealk;
 
 % Posicion del laser respecto al robot
+laser.name = 'LMS100';
 laser.pos(1) = 0;
 laser.pos(2) = 0;
 laser.ang = 0;
@@ -25,37 +27,30 @@ laserPosXRef = laser.pos(1)*cos(robot.ang) - laser.pos(2)*sin(robot.ang);
 laserPosYRef = laser.pos(1)*sin(robot.ang) + laser.pos(2)*cos(robot.ang);
 laserAngRef = robot.ang + laser.ang;
 
-% Varianza del ruido del proceso
-Qv = 0;
-Qw = 0;
-Qk_1 = [Qv 0; 0 Qw];
-
 % Inicializacion matriz P
-Pxini = 1e-3;
-Pyini = 1e-3;
-Pthetaini = 1e-3;
-Pk = [Pxini 0 0; 0 Pyini 0; 0 0 Pthetaini];
-
-% Varianza en la medida
-R1 = 1.5e-2;
-R2 = 1.5e-2;
-R3 = 1.5e-2;
+Pxini       = 1e-3;
+Pyini       = 1e-3;
+Pthetaini   = 1e-3;
+Pk = diag([Pxini,Pyini,Pthetaini]);
 
 % Posicion balizas
-LM(1,:) = [-3.9, 0.0, 0.2];
-LM(2,:) = [-3.9, 3.9, 0.2];
-LM(3,:) = [0.0, 3.9, 0.2];
-LM(4,:) = [3.9, 3.9, 0.2];
-LM(5,:) = [3.9, 0.0, 0.2];
-LM(6,:) = [3.9, -2.9, 0.2];
-LM(7,:) = [0, -2.9, 0.2];
-LM(8,:) = [-3.9, -2.9, 0.2];
-
+LM = [... LM(xPos,yPos)
+    [-3.9,  0.0];
+    [-3.9,  3.9];
+    [ 0.0,  3.9];
+    [ 3.9,  3.9];
+    [ 3.9,  0.0];
+    [ 3.9, -2.9];
+    [ 0.0, -2.9];
+    [-3.9, -2.9];
+];
 % Waypoint final
-wp(1,:) = [2 2];
-wp(2,:) = [-2 2];
-wp(3,:) = [-2 -2];
-wp(4,:) = [2 -2];
+wp = [... wp(xPos,yPos)
+    [ 2  2];
+    [-2  2];
+    [-2 -2];
+    [ 2 -2];
+];
 
 % Controlador
 Kp = 0.15;
@@ -65,14 +60,15 @@ se = 0;
 e_ = 0;
 
 % Algoritmo
-t = 0;
+tini = 0;
 tmax = 200;
-tAcum = [];
-k = 1;
+tAcum = tini:h:tmax;
+t = tini;
 wpind = 1;
 Ktotal = zeros(3);
-while t<tmax
-    
+
+ret = 1;
+for k = 1:length(tAcum)
     % Comprueba si esta en el wp y si es asi pasa al siguiente wp
     if sqrt((wp(wpind,2)-Xk(2))^2+(wp(wpind,1)-Xk(1))^2)<0.1
         wpind = wpind+1;
@@ -83,11 +79,6 @@ while t<tmax
     
     % Controlador PID
     angwp = atan2(wp(wpind,2)-Xk(2),wp(wpind,1)-Xk(1));
-    %     if angwp < -pi
-    %         angwp = angwp+2*pi;
-    %     elseif angwp > pi
-    %         angwp = angwp-2*pi;
-    %     end
     
     e =(sin(angwp-Xk(3)) + (1-cos(angwp-Xk(3))));
     se = se + e;
@@ -101,8 +92,12 @@ while t<tmax
     end
     
     % Avance real del robot
-    apoloMoveMRobot('Marvin', [v w], h);
-    XrealAUX = apoloGetLocationMRobot('Marvin');
+    ret = apoloMoveMRobot(robot.name, [v w], h);
+    if 0 == ret
+        tAcum = tini:h:t-h;
+        break
+    end
+    XrealAUX = apoloGetLocationMRobot(robot.name);
     
     % Obtenemos la posicion real del robot
     Xrealk(1) = XrealAUX(1);
@@ -110,7 +105,7 @@ while t<tmax
     Xrealk(3) = XrealAUX(4);
     Xreal(:,k) = Xrealk;        % Para mantener una historia del recorrido
     
-    [Xk,Pk] = getLocation(robot,laser,LM,Xk,Pk)
+    [Xk,Pk] = getLocation(robot.name,laser.name,LM,Xk,Pk,h,v,w);
     
     %Sólo para almacenarlo
     Xestimado(:,k) = Xk;
@@ -120,9 +115,8 @@ while t<tmax
     
     % Actualizacion del tiempo
     t = t+h;
-    tAcum(end+1) = t;
-    k = k + 1;
     apoloUpdate;
+%     pause(h-tDelta)
 end
 
 % Representacion grafica

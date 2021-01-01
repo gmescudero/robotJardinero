@@ -110,7 +110,7 @@
 		</UltrasonicSensor>
 		<UltrasonicSensor conusAngle="0.174533" maxRange="3" minRange="0.05" error="0" name="ul1" id="5" linkTo="$Marvin$">
 			<orientation>
-				{6.93889e-18,-0.1,0.7}
+				{0.0,-0.1,0.7}
 			</orientation>
 			<position>
 				{0.18,0.11,0.2}
@@ -119,36 +119,53 @@
 		</UltrasonicSensor>
 		<UltrasonicSensor conusAngle="0.174533" maxRange="3" minRange="0.05" error="0" name="ur1" id="6" linkTo="$Marvin$">
 			<orientation>
-				{-6.93889e-18,-0.1,-0.7}
+				{0.0,-0.1,-0.7}
 			</orientation>
 			<position>
 				{0.18,-0.11,0.2}
 			</position>
 			<colour r="0" g="1" b="0"/>
 		</UltrasonicSensor>
-		<LandMark mark_id="1" name="LM1" >
+		
+		<!-- BALIZAS -->
+		<LandMark mark_id="1" name="LM1">
 			<position>
 				{-3.9,0,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="2" name="LM2" >
+		<LandMark mark_id="2" name="LM2">
 			<position>
 				{-3.9,3.9,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="3" name="LM3" >
+		<LandMark mark_id="3" name="LM3">
 			<position>
 				{0,3.9,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="4" name="LM4" >
+		<LandMark mark_id="4" name="LM4">
 			<position>
 				{3.9,3.9,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="5" name="LM5" >
+		<LandMark mark_id="5" name="LM5">
 			<position>
 				{3.9,0,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="6" name="LM6">
+			<position>
+				{3.9,-2.9,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="7" name="LM7">
+			<position>
+				{0,-2.9,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="8" name="LM8">
+			<position>
+				{-3.9,-2.9,0.2}
 			</position>
 		</LandMark>
 	</World>

@@ -64,8 +64,7 @@ for l = 1:length(trayectoriaD)
     Uk = [trayectoriaDRuido(l); trayectoriaBRuido(l)];
 
     % Nuevo ciclo, k-1 = k.
-    Xk_1 = Xk;
-    Pk_1 = Pk;
+    v
     
     % Prediccion del estado (Modelo de odometria)
     X_k = [(Xk_1(1) + Uk(1)*cos(Xk_1(3)+(Uk(2)/2)));

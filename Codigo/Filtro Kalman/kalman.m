@@ -2,7 +2,7 @@
 clearvars; clc;
 
 % Definimos una trayectoria circular
-h = 0.25;    % Actualizacion de sensores
+h = 0.5;    % Actualizacion de sensores
 v = 0.0;    % Velocidad lineal
 w = 0.0;    % Velocidad angular
 
@@ -37,9 +37,9 @@ Pthetaini = 1e-3;
 Pk = [Pxini 0 0; 0 Pyini 0; 0 0 Pthetaini];
 
 % Varianza en la medida
-R1 = 1.5e-2;
-R2 = 1.5e-2;
-R3 = 1.5e-2;
+R1 = 0.0136;
+R2 = 0.0089;
+R3 = 0.0100;
 
 % Posicion balizas
 LM(1,:) = [-3.9, 0.0, 0.2];
@@ -51,16 +51,16 @@ LM(6,:) = [3.9, -2.9, 0.2];
 LM(7,:) = [0, -2.9, 0.2];
 LM(8,:) = [-3.9, -2.9, 0.2];
 
-% Waypoint final
+% Waypoints
 wp(1,:) = [2 2];
 wp(2,:) = [-2 2];
 wp(3,:) = [-2 -2];
 wp(4,:) = [2 -2];
 
 % Controlador
-Kp = 0.15;
-Ki = 0;
-Kd = 0.10;
+Kp = 0.25;
+Ki = 0.0;
+Kd = 0.1;
 se = 0;
 e_ = 0;
 
@@ -70,11 +70,14 @@ tmax = 200;
 tAcum = [];
 k = 1;
 wpind = 1;
-Ktotal = zeros(3);      
+Ktotal = zeros(3);  
+Eacumulado1 = [];
+Eacumulado2 = [];
+Eacumulado3 = [];
 while t<tmax
     
     % Comprueba si esta en el wp y si es asi pasa al siguiente wp
-    if sqrt((wp(wpind,2)-Xk(2))^2+(wp(wpind,1)-Xk(1))^2)<0.1
+    if sqrt((wp(wpind,2)-Xk(2))^2+(wp(wpind,1)-Xk(1))^2)<0.2
         wpind = wpind+1;
         if wpind > length(wp)
             wpind = 1;
@@ -83,21 +86,14 @@ while t<tmax
     
     % Controlador PID
     angwp = atan2(wp(wpind,2)-Xk(2),wp(wpind,1)-Xk(1));
-%     if angwp < -pi
-%         angwp = angwp+2*pi;
-%     elseif angwp > pi
-%         angwp = angwp-2*pi;
-%     end
-
     e =(sin(angwp-Xk(3)) + (1-cos(angwp-Xk(3))));
     se = se + e;
     w = Kp*e + Ki*h*se + Kd*(e-e_)/h;
-    e_ = e;
-    
+    e_ = e;  
     if abs(angwp-Xk(3)) < pi/10
         v = 0.2;
     else
-        v = 0.075;
+        v = 0.1;
     end
     
     % Avance real del robot
@@ -120,7 +116,17 @@ while t<tmax
         angulo_laser = baliza.angle(j);
         Zk(3*j-2,1) = distancia_laser;
         Zk(3*j-1,1) = sin(angulo_laser);
-        Zk(3*j,1) = cos(angulo_laser);
+        Zk(3*j-0,1) = cos(angulo_laser);
+        % temporal para calibracion
+        incX_cal = LM(id,1) - Xrealk(1);
+        incY_cal = LM(id,2) - Xrealk(2);
+        ang_cal = atan2(incY_cal,incX_cal) - Xrealk(3);
+        Zreal1(j,1) = sqrt(incX_cal^2+incY_cal^2);
+        Zreal2(j,1) = sin(ang_cal);
+        Zreal3(j,1) = cos(ang_cal);
+        Eacumulado1(end+1,1) = Zk(3*j-2,1) - Zreal1(j,1);
+        Eacumulado2(end+1,1) = Zk(3*j-1,1) - Zreal2(j,1);
+        Eacumulado3(end+1,1) = Zk(3*j-0,1) - Zreal3(j,1);
     end
 
     % Nuevo ciclo, k-1 = k.
@@ -184,19 +190,22 @@ while t<tmax
     Rk = diag(Rk_aux);
     % ----------------------------------------------------------------
     
-    % Comparacion
-    Sk = Hk*P_k*((Hk)') + Rk;
-
-    % Correccion
-    Wk = P_k*((Hk)')/Sk;
-    Xk = X_k + Wk*Yk;
-    Pk = (eye(3) - Wk*Hk)*P_k;
-    
-%     % Correcion de angulo
-    if Xk(3) < -pi
-        Xk(3) = Xk(3)+2*pi;
-    elseif Xk(3) > pi
-        Xk(3) = Xk(3)-2*pi;
+    if isempty(baliza.distance)
+        Xk = X_k;
+        Pk = P_k;
+    else
+        % Comparacion
+        Sk = Hk*P_k*((Hk)') + Rk;
+        % Correccion
+        Wk = P_k*((Hk)')/Sk;
+        Xk = X_k + Wk*Yk;
+        Pk = (eye(3) - Wk*Hk)*P_k;
+        % Correcion de angulo
+        if Xk(3) < -pi
+            Xk(3) = Xk(3)+2*pi;
+        elseif Xk(3) > pi
+            Xk(3) = Xk(3)-2*pi;
+        end
     end
     
     %Sólo para almacenarlo
@@ -211,6 +220,14 @@ while t<tmax
     k = k + 1;
     apoloUpdate;
 end 
+
+% temporal para calibracion
+mean(Eacumulado1)
+std(Eacumulado1)
+mean(Eacumulado2)
+std(Eacumulado2)
+mean(Eacumulado3)
+std(Eacumulado3)
 
 % Representacion grafica
 figure(1);
@@ -252,6 +269,3 @@ plot(tAcum,Xestimado(3,:),'.b');
 hold off
 xlabel('t(s)')
 ylabel('\theta(m)')
-
-
-

@@ -74,7 +74,20 @@
 			</face>
 		</FaceSetPart>
 		<Pioneer3ATSim name="Marvin" id="2">
-			<odometry seconds="1609522244" microseconds="179000"/>
+			<orientation>
+				{0,-0,-3.13529}
+			</orientation>
+			<position>
+				{-0.586815,2.00181,0}
+			</position>
+			<odometry seconds="1609523264" microseconds="56000">
+				<orientation>
+					{0,-0,2.34767}
+				</orientation>
+				<position>
+					{-15.0675,-8.32472,0}
+				</position>
+			</odometry>
 		</Pioneer3ATSim>
 		<LMS100Sim name="LMS100" id="3" linkTo="$Marvin$">
 			<position>
@@ -112,41 +125,6 @@
 		<LandMark mark_id="1" name="LM1" id="7">
 			<position>
 				{-3.9,0,0.2}
-			</position>
-		</LandMark>
-		<LandMark mark_id="2" name="LM2" id="8">
-			<position>
-				{-3.9,3.9,0.2}
-			</position>
-		</LandMark>
-		<LandMark mark_id="3" name="LM3" id="9">
-			<position>
-				{0,3.9,0.2}
-			</position>
-		</LandMark>
-		<LandMark mark_id="4" name="LM4" id="10">
-			<position>
-				{3.9,3.9,0.2}
-			</position>
-		</LandMark>
-		<LandMark mark_id="5" name="LM5" id="11">
-			<position>
-				{3.9,0,0.2}
-			</position>
-		</LandMark>
-		<LandMark mark_id="6" name="LM6" id="12">
-			<position>
-				{3.9,-2.9,0.2}
-			</position>
-		</LandMark>
-		<LandMark mark_id="7" name="LM7" id="13">
-			<position>
-				{0,-2.9,0.2}
-			</position>
-		</LandMark>
-		<LandMark mark_id="8" name="LM8" id="14">
-			<position>
-				{-3.9,-2.9,0.2}
 			</position>
 		</LandMark>
 	</World>

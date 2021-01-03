@@ -1,49 +1,28 @@
 %% Robot Jardinero
-clearvars; clc;
+clearvars; clc; close all;
 
 %% Config
-h = 0.25;    % Actualizacion de sensores
-tmax = 200;
+h = 0.25; % Refresh rate
 
 % max vels 
-vMax = 2;
-wMax = 2;
+vMax = 1;
+wMax = 1;
+vMin = 0.05;
+wMin = 0.05;
+
+% Planning 
+goal = [26, 6];
+xSize = 26.5;
+iterationLim = 80; % Max loops for waypoint
+maxDistance  = 5;  % Max distance between waypoints
 
 % Posicion robot
 robot.name = 'Marvin';
-robot.pos  = [1, 1, 0];
-robot.ang  = [0];
-
-% Waypoints 
-wp = [... wp(xPos,yPos)
-%     [ 2  2];
-%     [-2  2];
-%     [-2 -2];
-%     [ 2 -2];
-    [    1.0000    1.0000];
-    [    5.0055    2.9653];
-    [   13.5643   13.2041];
-    [   24.3775   14.1838];
-    [   31.4076   20.3689];
-    [   41.4418   29.5726];
-    [   46.8712   26.3391];
-    [   55.1523   26.5495];
-    [   64.2395   29.6187];
-    [   74.0155   30.8810];
-    [   86.6054   31.9431];
-    [  101.4533   33.1906];
-    [  112.2420   37.1852];
-    [  120.4202   35.0337];
-    [  122.5935   27.6108];
-    [  120.0000   30.0000];
-];
-wp = wp.*[(26.5/125) (13.5/65)]; % adjust limits
+robot.pos  = [0.5,0.5, 0];
+robot.ang  = 0;
 
 % Controller parameters
-% controller.Kp       = 0.15;
-% controller.Ki       = 0;
-% controller.Kd       = 0.10;
-controller.Kp       = 15;
+controller.Kp       = 0.15;
 controller.Ki       = 0;
 controller.Kd       = 0.10;
 controller.sampleT  = h;
@@ -51,7 +30,6 @@ controller.sampleT  = h;
 %% Initialization
 % Timing params
 tini = 0;
-tAcum = tini:h:tmax;
 t = tini;
 
 % Velocities
@@ -72,11 +50,6 @@ laser.pos(1) = 0;
 laser.pos(2) = 0;
 laser.ang    = 0;
 
-% Pasamos la posición del laser a cordenadas refenciales
-laserPosXRef = laser.pos(1)*cos(robot.ang) - laser.pos(2)*sin(robot.ang);
-laserPosYRef = laser.pos(1)*sin(robot.ang) + laser.pos(2)*cos(robot.ang);
-laserAngRef = robot.ang + laser.ang;
-
 % Inicializacion matriz P
 Pxini       = 1e-1;
 Pyini       = 1e-1;
@@ -91,43 +64,57 @@ load('balizas_jardin.mat');
 se = 0;
 e_ = 0;
 
-%% Algorithm
+% Planning
 wpind = 1;
-Ktotal = zeros(3);
+dist = 0;
 
-ret = 1;
-% TODO planification
-for k = 1:length(tAcum)    
+k   = 0;
+wpK = 0;
+%% Algorithm
+
+% Planification
+load jardinBinMap2.mat 
+cellsPerMeter = length(BW(1,:))/xSize;
+[ret,wp] = mappingAndPlan(2,BW,Xk,goal,cellsPerMeter);
+
+while (wpind < length(wp)) && (0 ~= ret)
+    k=k+1;
+    
     % Retrieve the robot location from Kalman filter
     [Xk,Pk] = getLocation(robot.name,laser.name,LM,Xk,Pk,h,v,w);
 
     % Trajectory controller
-    [vControll,wControll,wpReached] = controllerPID(controller,Xk,wp(wpind,:));
+    [vControl,wControl,wpReached] = controllerPID(controller,Xk,wp(wpind,:));
     
     % Set next waypoint
-    if wpReached
+    if wpReached || dist > maxDistance || k-wpK > iterationLim
         wpind = wpind + 1; 
-        % TODO planification
+        dist = 0;
+        vControl = 0;
+        wControl = 0;
+        wpK = k;
     end
     
     % Reactive control
-    [vReact, wReact] = reactiveControl();
+    [vReact, wReact,tooClose] = reactiveControl();
     
     % Compute velocity
-    v = vControll*vReact*vMax;
-    w = wControll*wReact*wMax;
+    if tooClose
+        v = vReact*vMax;
+        w = wReact*wMax;
+    else
+        v = vControl*vMax;
+        w = wControl*wMax;
+    end
+    dist = dist + v*h;
     
     % Movement
     ret = apoloMoveMRobot(robot.name, [v w], h);
-    if 0 == ret
-        tAcum = tini:h:t-h;
-        break
-    end
     
     % New iteration
     t = t+h;
     apoloUpdate();
-%     pause(h/2);
+    pause(h/2);
 
     %% Data adquisition
     XrealAUX = apoloGetLocationMRobot(robot.name);
@@ -142,17 +129,22 @@ for k = 1:length(tAcum)
     Xestimado(:,k) = Xk;
 end
 
-%% Ploting and such
+%% Ploting
+tAcum = 0:h:(k-1)*h;
+
 % Representacion grafica
 figure(1);
 subplot(3,2,[1 3 5])
-axis([-4 4 -4 4])
+axis([-0.5 27 -0.5 14])
 
 hold on
 plot(Xreal(1,:), Xreal(2,:), 'r');
 % plot(Xestimado(1,:), Xestimado(2,:), '--b');
 for i=1:t/h
     plot(Xestimado(1,i), Xestimado(2,i), '.b');
+end
+for i = 1:length(wp(:,1))
+    plot(wp(i,1), wp(i,2), 'o');
 end
 hold off
 title('Trayectoria')
@@ -183,3 +175,14 @@ plot(tAcum,Xestimado(3,:),'.b');
 hold off
 xlabel('t(s)')
 ylabel('\theta(m)')
+
+figure(2)
+
+imshow (~BW)
+hold on
+plot(Xreal(1,:)*cellsPerMeter, Xreal(2,:)*cellsPerMeter, 'r');
+for i = 1:length(wp(:,1))
+    x = wp(i,1)*cellsPerMeter;
+    y = wp(i,2)*cellsPerMeter;
+    plot(x,y, 'o');
+end

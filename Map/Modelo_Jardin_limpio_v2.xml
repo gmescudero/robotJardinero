@@ -106,7 +106,7 @@
 		</UltrasonicSensor>
 		<UltrasonicSensor conusAngle="0.174533" maxRange="3" minRange="0.05" error="0" name="ul1" id="5" linkTo="$Marvin$">
 			<orientation>
-				{6.93889e-18,-0.1,0.7}
+				{0.0,-0.1,0.7}
 			</orientation>
 			<position>
 				{0.18,0.11,0.2}
@@ -115,7 +115,7 @@
 		</UltrasonicSensor>
 		<UltrasonicSensor conusAngle="0.174533" maxRange="3" minRange="0.05" error="0" name="ur1" id="6" linkTo="$Marvin$">
 			<orientation>
-				{-6.93889e-18,-0.1,-0.7}
+				{0.0,-0.1,-0.7}
 			</orientation>
 			<position>
 				{0.18,-0.11,0.2}
@@ -124,107 +124,106 @@
 		</UltrasonicSensor>
 		
 		<!-- BALIZAS -->
-		<LandMark mark_id="1" name="LM1: Fuente O" id="7">
+		<LandMark mark_id="1" name="LM1: Fuente O">
 			<position>
 				{10.35,5.55,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="2" name="LM2: Esquina SO" id="8">
+		<LandMark mark_id="2" name="LM2: Esquina SO">
 			<position>
-				{0,0,0.2}
+				{0.1,0.1,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="3" name="LM3: Esquina SE" id="9">
+		<LandMark mark_id="3" name="LM3: Esquina SE">
 			<position>
-				{0,13.5,0.2}
+				{0.1,13.4,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="4" name="LM4: Esquina NE" id="10">
+		<LandMark mark_id="4" name="LM4: Esquina NE">
 			<position>
-				{26.5,13.5,0.2}
+				{26.4,13.4,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="5" name="LM5: Esquina NO" id="11">
+		<LandMark mark_id="5" name="LM5: Esquina NO">
 			<position>
-				{26.5,0,0.2}
+				{26.4,0,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="6" name="LM6 Fuente S" id="12">
+		<LandMark mark_id="6" name="LM6 Fuente S">
 			<position>
 				{9.2,6.75,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="7" name="LM7: Fuente N" id="13">
+		<LandMark mark_id="7" name="LM7: Fuente N">
 			<position>
 				{11.3,6.75,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="8" name="LM8: Baliza 8" id="14">
+		<LandMark mark_id="8" name="LM8: Baliza 8">
 			<position>
 				{10.4,8,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="9" name="LM9: ZonaNO1" id="15">
+		<LandMark mark_id="9" name="LM9: ZonaNO1">
 			<position>
 				{15.7,9.9,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="10" name="LM10: ZonaNE1" id="16">
+		<LandMark mark_id="10" name="LM10: ZonaNE1">
 			<position>
 				{15.5,3.3,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="11" name="LM11: ZonaNO2" id="17">
+		<LandMark mark_id="11" name="LM11: ZonaNO2">
 			<position>
 				{20.5,7.3,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="12" name="LM12: ZonaNE2" id="18">
+		<LandMark mark_id="12" name="LM12: ZonaNE2">
 			<position>
 				{20.5,6.1,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="13" name="LM13: ZonaNO3" id="19">
+		<LandMark mark_id="13" name="LM13: ZonaNO3">
 			<position>
 				{20.3,12.2,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="14" name="LM14: ZonaNE3" id="20">
+		<LandMark mark_id="14" name="LM14: ZonaNE3">
 			<position>
 				{20.3,1.1,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="15" name="LM15: ZonaNO4" id="21">
+		<LandMark mark_id="15" name="LM15: ZonaNO4">
 			<position>
 				{24,5.6,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="16" name="LM16: ZonaNE4" id="22">
+		<LandMark mark_id="16" name="LM16: ZonaNE4">
 			<position>
 				{23.6,7.6,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="17" name="LM17: ZonaNO5" id="23">
+		<LandMark mark_id="17" name="LM17: ZonaNO5">
 			<position>
 				{22.3,8.4,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="18" name="LM18: ZonaNE5" id="24">
+		<LandMark mark_id="18" name="LM18: ZonaNE5">
 			<position>
 				{22.5,5,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="19" name="LM19: ZonaE1" id="25">
+		<LandMark mark_id="19" name="LM19: ZonaE1">
 			<position>
 				{11.3,0.7,0.2}
 			</position>
 		</LandMark>
-		<LandMark mark_id="20" name="LM20: ZonaO1" id="26">
+		<LandMark mark_id="20" name="LM20: ZonaO1">
 			<position>
 				{11.4,12.4,0.2}
 			</position>
 		</LandMark>
-			<!--gme-->
 		<LandMark mark_id="21" name="LM21: ZonaSO1">
 			<position>
 				{5.8,10.1,0.2}

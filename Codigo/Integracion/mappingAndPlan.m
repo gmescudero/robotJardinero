@@ -10,15 +10,15 @@ PRM = 2;
 
 %% Config
 % General
-robotRadius = 0.3;
+robotRadius = 0.10;
 
 % RRT
-valDist         = 0.6;
+valDist         = 0.1;
 maxIterations   = 10000;
-maxConnectDist  = 0.5;
+maxConnectDist  = 1;
 
 % PRM 
-numNodes    = 40;
+numNodes    = 50;
 maxNumNodes = 10000;
 conDist     = 4;
 
@@ -32,6 +32,8 @@ inflate(mapInflated, robotRadius);
 if RRT == type
     %% RRT*
     ss = stateSpaceDubins; %generamos espacio de estados
+    ss.MinTurningRadius = 0.4;
+
     %stateSpaceSE2
     %stateSpaceDubins
     %stateSpaceReedsShepp
@@ -61,6 +63,14 @@ if RRT == type
         return
     end
 
+    figure(3)
+    mapa.show;
+
+    hold on;
+    plot(solnInfo.TreeData(:,1),solnInfo.TreeData(:,2), '.-'); %expansión del arbol
+    plot(pthObj.States(:,1),pthObj.States(:,2), 'r-','LineWidth',2); %dibujar el camino
+    title('RRT*');
+    
 elseif PRM == type
     %% PRM
     prm = mobileRobotPRM;
@@ -85,6 +95,10 @@ elseif PRM == type
     else
         ret = true;
     end
+    
+    figure(3)
+    show(prm);
+
 else
     %% Invalid algorithm selection
     disp('Invalid planning algorithm');

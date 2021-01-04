@@ -4,9 +4,9 @@ function [v,w,wpReached] = controllerPID(...
     wp)             % Target waypoint
 
 %% Config
-minLinVel = 0.01;
+minLinVel = 0.1;
 minAngle  = pi/10;
-reachedTh = 0.3;
+satW = 1;
 
 %% Exec
 persistent e_ se
@@ -15,7 +15,7 @@ persistent e_ se
 angwp = atan2(wp(2)-Xk(2),wp(1)-Xk(1));
 
 % Error values
-e = (sin(angwp-Xk(3)) + (1-cos(angwp-Xk(3))));
+e = ((sin(angwp-Xk(3)) + (1-cos(angwp-Xk(3)))));
 if isempty(e_) || isempty(se)
     e_ = e;
     se = e;
@@ -29,6 +29,7 @@ Ki = controller.Ki;
 Kd = controller.Kd;
 h  = controller.sampleT;
 w = Kp*e + Ki*h*se + Kd*(e-e_)/h; 
+w = max([min([satW, w]) -satW]);
 e_ = e; 
 
 % Linear vel adjust
@@ -40,7 +41,7 @@ end
 
 % Comprueba si esta en el wp y si es asi pasa al siguiente wp
 wpReached = false;
-if sqrt((wp(2)-Xk(2))^2+(wp(1)-Xk(1))^2) < reachedTh
+if sqrt((wp(2)-Xk(2))^2+(wp(1)-Xk(1))^2) < controller.reachedTh
     wpReached = true;
 end
 end

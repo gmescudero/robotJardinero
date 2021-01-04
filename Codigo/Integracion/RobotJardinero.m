@@ -3,29 +3,31 @@ clearvars; clc; close all;
 
 %% Config
 h = 0.25; % Refresh rate
+tmax = 500;
 
 % max vels 
-vMax = 1;
+vMax = 0.3;
 wMax = 1;
-vMin = 0.05;
-wMin = 0.05;
 
 % Planning 
+% goal = [12, 6];
+planningAlgorithm = 1; % RRT = 1, PRM = 2
 goal = [26, 6];
 xSize = 26.5;
-iterationLim = 80; % Max loops for waypoint
+iterationLim = 20; % Max loops for waypoint
 maxDistance  = 5;  % Max distance between waypoints
 
 % Posicion robot
 robot.name = 'Marvin';
-robot.pos  = [0.5,0.5, 0];
+robot.pos  = [1,1, 0];
 robot.ang  = 0;
 
 % Controller parameters
-controller.Kp       = 0.15;
-controller.Ki       = 0;
-controller.Kd       = 0.10;
-controller.sampleT  = h;
+controller.Kp        = 0.25;
+controller.Ki        = 0;
+controller.Kd        = 0.6;
+controller.sampleT   = h;
+controller.reachedTh = 0.2;
 
 %% Initialization
 % Timing params
@@ -46,9 +48,6 @@ Xk = Xrealk;
 
 % Posicion del laser respecto al robot
 laser.name = 'LMS100';
-laser.pos(1) = 0;
-laser.pos(2) = 0;
-laser.ang    = 0;
 
 % Inicializacion matriz P
 Pxini       = 1e-1;
@@ -59,6 +58,11 @@ Pk = diag([Pxini,Pyini,Pthetaini]);
 % Posicion balizas
 % LM(xPos,yPos)
 load('balizas_jardin.mat');
+
+% Mapa binario
+% BW(x,y)
+% load jardinBinMapCorrectAndDilated.mat
+load jardinBinMap3.mat
 
 % Controlador
 se = 0;
@@ -73,38 +77,76 @@ wpK = 0;
 %% Algorithm
 
 % Planification
-load jardinBinMap2.mat 
-cellsPerMeter = length(BW(1,:))/xSize;
-[ret,wp] = mappingAndPlan(2,BW,Xk,goal,cellsPerMeter);
+cellsPerMeter = fix(length(BW(1,:))/xSize);
+disp('Planning...');
+tic
+% RRT
+[ret,wp] = mappingAndPlan(1,BW,Xk,goal,cellsPerMeter);
+if 0 == ret
+    % PRM
+    [ret,wp] = mappingAndPlan(2,BW,Xk,goal,cellsPerMeter);
+end
+toc
+disp('Planning finished');
 
-while (wpind < length(wp)) && (0 ~= ret)
+reaktK = 0;
+
+while (wpind < length(wp)) && (0 ~= ret) && (t < tmax)
     k=k+1;
     
     % Retrieve the robot location from Kalman filter
     [Xk,Pk] = getLocation(robot.name,laser.name,LM,Xk,Pk,h,v,w);
 
     % Trajectory controller
-    [vControl,wControl,wpReached] = controllerPID(controller,Xk,wp(wpind,:));
+%     [vControl,wControl,wpReached] = controllerPID(controller,Xk,wp(wpind,:));
+    vControl =0;
+    wControl = 0;
+    wpReached = false;
     
     % Set next waypoint
     if wpReached || dist > maxDistance || k-wpK > iterationLim
         wpind = wpind + 1; 
+        maxDistance = 4*sqrt((wp(wpind,1) - Xk(1))^2 + (wp(wpind,2)- Xk(2))^2);
+        iterationLim = 4*((maxDistance/vMax) * h);
         dist = 0;
         vControl = 0;
         wControl = 0;
         wpK = k;
+        if maxDistance/4 > 8
+            % Planification
+            disp('Replanning...');
+            % PRM
+            [ret,wp] = mappingAndPlan(2,BW,Xk,goal,cellsPerMeter);
+            disp('Replanning finished');
+            if ret == 0
+                break
+            else
+                wpind = 1;
+            end
+        end
+        controller.reachedTh = min([...
+            0.1*sqrt((goal(1) - Xk(1))^2 + (goal(2)- Xk(2))^2),...
+            controller.reachedTh]);
     end
     
     % Reactive control
-    [vReact, wReact,tooClose] = reactiveControl();
+    if k > reaktK
+        if wControl <= 0
+            dir = -1;
+        else
+            dir = 1;
+        end
+    end
+    [vReact, wReact,tooClose] = reactiveControl(dir);
     
     % Compute velocity
-    if tooClose
-        v = vReact*vMax;
-        w = wReact*wMax;
+    if tooClose %|| k < reaktK
+        reaktK = k + 2;
+        v = ((vReact))*vMax;
+        w = ((wReact))*wMax;
     else
-        v = vControl*vMax;
-        w = wControl*wMax;
+        v = ((2.5*vControl + vReact)/3.5)*vMax;
+        w = ((2.5*wControl + wReact)/3.5)*wMax;
     end
     dist = dist + v*h;
     
@@ -114,7 +156,7 @@ while (wpind < length(wp)) && (0 ~= ret)
     % New iteration
     t = t+h;
     apoloUpdate();
-    pause(h/2);
+    pause(h/4);
 
     %% Data adquisition
     XrealAUX = apoloGetLocationMRobot(robot.name);
@@ -129,6 +171,9 @@ while (wpind < length(wp)) && (0 ~= ret)
     Xestimado(:,k) = Xk;
 end
 
+if 0 == ret
+    disp('Trajectory collision!');
+end
 %% Ploting
 tAcum = 0:h:(k-1)*h;
 

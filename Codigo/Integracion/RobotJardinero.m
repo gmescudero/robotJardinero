@@ -19,7 +19,7 @@ maxDistance  = 5;  % Max distance between waypoints
 
 % Posicion robot
 robot.name = 'Marvin';
-robot.pos  = [1,1, 0];
+robot.pos  = [0.5,0.5, 0];
 robot.ang  = 0;
 
 % Controller parameters
@@ -98,10 +98,7 @@ while (wpind < length(wp)) && (0 ~= ret) && (t < tmax)
     [Xk,Pk] = getLocation(robot.name,laser.name,LM,Xk,Pk,h,v,w);
 
     % Trajectory controller
-%     [vControl,wControl,wpReached] = controllerPID(controller,Xk,wp(wpind,:));
-    vControl =0;
-    wControl = 0;
-    wpReached = false;
+    [vControl,wControl,wpReached] = controllerPID(controller,Xk,wp(wpind,:));
     
     % Set next waypoint
     if wpReached || dist > maxDistance || k-wpK > iterationLim

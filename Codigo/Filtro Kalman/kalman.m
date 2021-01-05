@@ -4,16 +4,16 @@ clearvars; clc;
 % Definimos una trayectoria circular
 h = 0.5;    % Actualizacion de sensores
 v = 0.0;    % Velocidad lineal
-w = 0.0;    % Velocidad angular
+w = 0.5;    % Velocidad angular
 
 % Posicion robot 
-robot.pos = [2, 0, 0];
-robot.ang = [pi/2];
+robot.pos = [0, 0, 0];
+robot.ang = [0];
 apoloPlaceMRobot('Marvin', robot.pos, robot.ang);
 
 % Inicializamos la posición inicial
 Xrealk = [robot.pos(1); robot.pos(2); robot.ang];
-Xk = [2; 0; pi/2];
+Xk = [0; 0; 0];
 
 % Posicion del laser respecto al robot
 laser.pos(1) = 0;
@@ -84,17 +84,17 @@ while t<tmax
         end
     end
     
-    % Controlador PID
-    angwp = atan2(wp(wpind,2)-Xk(2),wp(wpind,1)-Xk(1));
-    e =(sin(angwp-Xk(3)) + (1-cos(angwp-Xk(3))));
-    se = se + e;
-    w = Kp*e + Ki*h*se + Kd*(e-e_)/h;
-    e_ = e;  
-    if abs(angwp-Xk(3)) < pi/10
-        v = 0.2;
-    else
-        v = 0.1;
-    end
+%     % Controlador PID
+%     angwp = atan2(wp(wpind,2)-Xk(2),wp(wpind,1)-Xk(1));
+%     e =(sin(angwp-Xk(3)) + (1-cos(angwp-Xk(3))));
+%     se = se + e;
+%     w = Kp*e + Ki*h*se + Kd*(e-e_)/h;
+%     e_ = e;  
+%     if abs(angwp-Xk(3)) < pi/10
+%         v = 0.2;
+%     else
+%         v = 0.1;
+%     end
     
     % Avance real del robot
     apoloMoveMRobot('Marvin', [v w], h);

@@ -61,8 +61,8 @@ load('balizas_jardin.mat');
 
 % Mapa binario
 % BW(x,y)
-% load jardinBinMapCorrectAndDilated.mat
-load jardinBinMap3.mat
+load jardinBinMapCorrectAndDilated.mat
+% load jardinBinMap3.mat
 
 % Controlador
 se = 0;

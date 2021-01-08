@@ -13,7 +13,7 @@ PRM = 2;
 robotRadius = 0.10;
 
 % RRT
-valDist         = 0.1;
+valDist         = 1;
 maxIterations   = 10000;
 maxConnectDist  = 1;
 
@@ -102,6 +102,7 @@ elseif PRM == type
 else
     %% Invalid algorithm selection
     disp('Invalid planning algorithm');
+    ret  = 0;
     path = 0;
     return
 end

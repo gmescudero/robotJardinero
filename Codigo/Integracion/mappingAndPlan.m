@@ -10,7 +10,7 @@ PRM = 2;
 
 %% Config
 % General
-robotRadius = 0.10;
+robotRadius = 0.15;
 
 % RRT
 valDist         = 1;

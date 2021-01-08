@@ -2,20 +2,29 @@
 clearvars; clc; close all;
 
 %% Config
+% Posicion balizas
+% LM(xPos,yPos)
+load balizas_jardin.mat
+
+% Mapa binario
+% BW(x,y)
+% load jardinBinMapCorrectAndDilated.mat
+% load jardinBinMap3.mat
+load jardinBinMapWithFountain.mat
+
 h = 0.25; % Refresh rate
 tmax = 500;
 
-% max vels 
+% max vels
 vMax = 0.3;
 wMax = 1;
 
-% Planning 
+% Planning
 % goal = [12, 6];
-planningAlgorithm = 1; % RRT = 1, PRM = 2
-goal = [26, 6];
+goal = [25.5, 6];
 xSize = 26.5;
-iterationLim = 20; % Max loops for waypoint
-maxDistance  = 5;  % Max distance between waypoints
+tgtRange = 1;
+tgtReplanTh = 4;
 
 % Posicion robot
 robot.name = 'Marvin';
@@ -31,8 +40,7 @@ controller.reachedTh = 0.2;
 
 %% Initialization
 % Timing params
-tini = 0;
-t = tini;
+t = 0;
 
 % Velocities
 v = 0.0;    % Velocidad lineal
@@ -54,19 +62,6 @@ Pxini       = 1e-1;
 Pyini       = 1e-1;
 Pthetaini   = 1e-1;
 Pk = diag([Pxini,Pyini,Pthetaini]);
-
-% Posicion balizas
-% LM(xPos,yPos)
-load('balizas_jardin.mat');
-
-% Mapa binario
-% BW(x,y)
-load jardinBinMapCorrectAndDilated.mat
-% load jardinBinMap3.mat
-
-% Controlador
-se = 0;
-e_ = 0;
 
 % Planning
 wpind = 1;
@@ -90,71 +85,71 @@ toc
 disp('Planning finished');
 
 reaktK = 0;
-
-while (wpind < length(wp)) && (0 ~= ret) && (t < tmax)
+loop = true;
+while (0 ~= ret) && (t < tmax) && loop
     k=k+1;
     
     % Retrieve the robot location from Kalman filter
     [Xk,Pk] = getLocation(robot.name,laser.name,LM,Xk,Pk,h,v,w);
-
+    
     % Trajectory controller
     [vControl,wControl,wpReached] = controllerPID(controller,Xk,wp(wpind,:));
+    if wpind >= length(wp) && wpReached
+        disp('Goal Reached!');
+        loop = false;
+    end
     
-    % Set next waypoint
-    if wpReached || dist > maxDistance || k-wpK > iterationLim
-        wpind = wpind + 1; 
-        maxDistance = 4*sqrt((wp(wpind,1) - Xk(1))^2 + (wp(wpind,2)- Xk(2))^2);
-        iterationLim = 4*((maxDistance/vMax) * h);
-        dist = 0;
-        vControl = 0;
-        wControl = 0;
-        wpK = k;
-        if maxDistance/4 > 8
-            % Planification
-            disp('Replanning...');
-            % PRM
-            [ret,wp] = mappingAndPlan(2,BW,Xk,goal,cellsPerMeter);
-            disp('Replanning finished');
-            if ret == 0
-                break
+    % Compute distance and angle to next waypoint
+    tgtDist = sqrt((wp(wpind,1) - Xk(1))^2 + (wp(wpind,2)- Xk(2))^2);
+    tgtAngl = atan2((wp(wpind,2)- Xk(2)),(wp(wpind,1) - Xk(1)));
+    
+    % Check if replan is needed
+    if tgtDist > tgtReplanTh
+        [ret,wp] = mappingAndPlan(2,BW,Xk,goal,cellsPerMeter);
+        if 0 == ret
+            disp('Replaning error');
+            loop = false;
+        else
+            wpind = 1;
+        end
+    else
+        % Choose next waypoint
+        while tgtDist < tgtRange && wpind < length(wp(:,1))
+            wpind = wpind+1;
+            % Calculate target dist and angle
+            tgtDist = sqrt((wp(wpind,1) - Xk(1))^2 + (wp(wpind,2)- Xk(2))^2);
+            tgtAngl = atan2((wp(wpind,2)- Xk(2)),(wp(wpind,1) - Xk(1)));
+        end
+        
+        % Reactive control
+        if k > reaktK
+            if wControl <= 0
+                dir = -1;
             else
-                wpind = 1;
+                dir = 1;
             end
         end
-        controller.reachedTh = min([...
-            0.1*sqrt((goal(1) - Xk(1))^2 + (goal(2)- Xk(2))^2),...
-            controller.reachedTh]);
-    end
-    
-    % Reactive control
-    if k > reaktK
-        if wControl <= 0
-            dir = -1;
+        [vReact, wReact,tooClose] = reactiveControl(dir);
+        
+        % Compute velocities
+        if tooClose %|| k < reaktK
+            reaktK = k + 2;
+            v = ((vReact))*vMax;
+            w = ((wReact))*wMax;
         else
-            dir = 1;
+            v = ((2.5*vControl + vReact)/3.5)*vMax;
+            w = ((2.5*wControl + wReact)/3.5)*wMax;
         end
+        
+        % Movement
+        ret = apoloMoveMRobot(robot.name, [v w], h);
     end
-    [vReact, wReact,tooClose] = reactiveControl(dir);
-    
-    % Compute velocity
-    if tooClose %|| k < reaktK
-        reaktK = k + 2;
-        v = ((vReact))*vMax;
-        w = ((wReact))*wMax;
-    else
-        v = ((2.5*vControl + vReact)/3.5)*vMax;
-        w = ((2.5*wControl + wReact)/3.5)*wMax;
-    end
-    dist = dist + v*h;
-    
-    % Movement
-    ret = apoloMoveMRobot(robot.name, [v w], h);
     
     % New iteration
     t = t+h;
     apoloUpdate();
     pause(h/4);
-
+    
     %% Data adquisition
     XrealAUX = apoloGetLocationMRobot(robot.name);
     
@@ -163,7 +158,7 @@ while (wpind < length(wp)) && (0 ~= ret) && (t < tmax)
     Xrealk(2) = XrealAUX(2);
     Xrealk(3) = XrealAUX(4);
     Xreal(:,k) = Xrealk;        % Para mantener una historia del recorrido
-        
+    
     %Sólo para almacenarlo
     Xestimado(:,k) = Xk;
 end

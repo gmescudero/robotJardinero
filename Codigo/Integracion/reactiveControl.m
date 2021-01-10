@@ -3,8 +3,9 @@ function [vf, vg,tooClose] = reactiveControl(...
 tooClose = false;
 
 %% Config
-lim1 = 0.7;
-lim2 = 0.25;
+lim1 = 0.70;
+lim2 = 0.50;
+lim3 = 0.25;
 
 %% Agorithm
 frente      = min([apoloGetUltrasonicSensor('uci'),apoloGetUltrasonicSensor('ucd')]);
@@ -16,6 +17,19 @@ if frente > lim1 && izquierda > lim2 && derecha > lim2
     vf = 1;
     vg = 0;
 elseif frente > lim2 && izquierda > lim2 && derecha > lim2
+    % Obstable not close
+    vf = 0.8;
+    vg = 0.5;
+    if dir == 1
+        if izquierda < frente
+            vg = -vg;
+        end
+    else
+        if derecha > frente
+            vg = -vg;
+        end
+    end
+elseif frente > lim3 && izquierda > lim3 && derecha > lim3
     % Obstable close
     vf = 0.5;
     vg = 0.5;

@@ -8,16 +8,14 @@ load balizas_jardin.mat
 
 % Mapa binario
 % BW(x,y)
-% load jardinBinMapCorrectAndDilated.mat
-% load jardinBinMap3.mat
 load jardinBinMapWithFountain.mat
 
 h = 0.25; % Refresh rate
 tmax = 500;
 
 % max vels
-vMax = 0.3;
-wMax = 1;
+vMax = 0.25;
+wMax = 1.00;
 
 % Planning
 % goal = [12, 6];
@@ -32,9 +30,9 @@ robot.pos  = [0.5,0.5, 0];
 robot.ang  = 0;
 
 % Controller parameters
-controller.Kp        = 0.25;
-controller.Ki        = 0;
-controller.Kd        = 0.6;
+controller.Kp        = 0.30;
+controller.Ki        = 0.00;
+controller.Kd        = 0.70;
 controller.sampleT   = h;
 controller.reachedTh = 0.2;
 
@@ -133,12 +131,12 @@ while (0 ~= ret) && (t < tmax) && loop
         
         % Compute velocities
         if tooClose %|| k < reaktK
-            reaktK = k + 2;
+            reaktK = k + 1;
             v = ((vReact))*vMax;
             w = ((wReact))*wMax;
         else
-            v = ((2.5*vControl + vReact)/3.5)*vMax;
-            w = ((2.5*wControl + wReact)/3.5)*wMax;
+            v = ((2*vControl + vReact)/3)*vMax;
+            w = ((2*wControl + wReact)/3)*wMax;
         end
         
         % Movement

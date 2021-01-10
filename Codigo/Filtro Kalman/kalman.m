@@ -3,8 +3,8 @@ clearvars; clc;
 
 % Definimos una trayectoria circular
 h = 0.5;    % Actualizacion de sensores
-v = 0.1;    % Velocidad lineal
-w = 0.0;    % Velocidad angular
+v = 0.00;    % Velocidad lineal
+w = 1;    % Velocidad angular
 
 % Posicion robot 
 robot.pos = [-3, -2.5, 0];
@@ -26,8 +26,8 @@ laserPosYRef = laser.pos(1)*sin(robot.ang) + laser.pos(2)*cos(robot.ang);
 laserAngRef = robot.ang + laser.ang;
 
 % Varianza del ruido del proceso 
-Qv = 0.0170;
-Qw = 0.0110;
+Qv = 0.0150;
+Qw = 0.0190;
 Qk_1 = [Qv 0; 0 Qw];
 
 % Inicializacion matriz P
@@ -66,7 +66,7 @@ e_ = 0;
 
 % Algoritmo
 t = 0;
-tmax = 60;
+tmax = 20;
 tAcum = [];
 k = 1;
 wpind = 1;
@@ -212,8 +212,8 @@ while t<tmax
     %Sólo para almacenarlo
     Xestimado(:,k) = Xk;
     
-    Vestimado(:,k) = (Xrealk(1) - Xk_1(1))/(h*cos(Xrealk(3)/2 + Xk_1(3)/2));
-    Westimado(:,k) = (Xrealk(3) - Xk_1(3))/h;
+    Vestimado(:,k) = (Xrealk(1) - X_realk(1))/(h*cos(Xrealk(3)/2 + X_realk(3)/2));
+    Westimado(:,k) = (Xrealk(3) - X_realk(3))/h;
     ErrorV(:,k) = v - Vestimado(:,k);
     ErrorW(:,k) = w - Westimado(:,k);
     

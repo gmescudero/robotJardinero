@@ -2,10 +2,8 @@ function [Xk,Pk] = getLocation(robot,laser,LM,Xk_1,Pk_1,h,v,w)
 
 %% CONFIG
 % Varianza del ruido del proceso 
-% Qv = 0.0018;
-% Qw = 0.001;
-Qv = 0.0;
-Qw = 0.0;
+Qv = 1e-15;
+Qw = 1e-16;
 % Qk_1 = diag([Qv,Qv,Qw]);
 Qk_1 = diag([Qv,Qw]);
 

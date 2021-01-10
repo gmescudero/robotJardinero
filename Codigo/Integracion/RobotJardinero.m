@@ -10,16 +10,17 @@ load balizas_jardin.mat
 % BW(x,y)
 load jardinBinMapWithFountain.mat
 
-h = 0.1; % Refresh rate
+h = 0.25; % Refresh rate
 tmax = 500;
 
 % max vels
 vMax = 0.25;
-wMax = 0.90;
+wMax = 1.00;
 
 % Planning
 % goal = [12, 6];
-goal = [26, 6.5];
+% goal = [26, 6.5];
+goal = [21.5, 3.6];
 xSize = 26.5;
 tgtRange = 1;
 tgtReplanTh = 4;
@@ -30,11 +31,11 @@ robot.pos  = [0.5,0.5, 0];
 robot.ang  = 0;
 
 % Controller parameters
-controller.Kp        = 0.20;
+controller.Kp        = 0.40;
 controller.Ki        = 0.00;
-controller.Kd        = 1.00;
+controller.Kd        = 0.50;
 controller.sampleT   = h;
-controller.reachedTh = 0.30;
+controller.reachedTh = 0.15;
 
 %% Initialization
 % Timing params
@@ -86,6 +87,9 @@ reaktK = 0;
 loop = true;
 while (0 ~= ret) && (t < tmax) && loop
     k=k+1;
+    
+    % Retrieve the robot location from Kalman filter
+    [Xk,Pk] = getLocation(robot.name,laser.name,LM,Xk,Pk,h,v,w);
     
     % Trajectory controller
     [vControl,wControl,wpReached] = controllerPID(controller,Xk,wp(wpind,:));
@@ -139,9 +143,6 @@ while (0 ~= ret) && (t < tmax) && loop
         % Movement
         ret = apoloMoveMRobot(robot.name, [v w], h);
     end
-    
-    % Retrieve the robot location from Kalman filter
-    [Xk,Pk] = getLocation(robot.name,laser.name,LM,Xk,Pk,h,v,w);
     
     % New iteration
     t = t+h;

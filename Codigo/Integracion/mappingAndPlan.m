@@ -13,7 +13,7 @@ PRM = 2;
 robotRadius = 0.15;
 
 % RRT
-valDist         = 1;
+valDist         = 0.75;
 maxIterations   = 10000;
 maxConnectDist  = 1;
 

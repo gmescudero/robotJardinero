@@ -1,14 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <root>
 	<World>
-		<!-- NUMEROS DE MATRICULA -->
-		<WorldInfo name="Robot Jardinero">
-			<RegisterNumber number="19056"/>
-			<RegisterNumber number="19155"/>
-			<RegisterNumber number="20251"/><!--gme-->
-		</WorldInfo>
-	
-		<!-- SALA -->
+		<WorldInfo name="" id="0"/>
 		<FaceSetPart name="Parque" id="1">
 			<colour r="0.501961" g="0.25098" b="0.25098"/>
 			<face>
@@ -165,7 +158,7 @@
 		</LandMark>
 		<LandMark mark_id="5" name="LM5: Esquina NO" id="11">
 			<position>
-				{26.4,0,0.2}
+				{26.4,0.1,0.2}
 			</position>
 		</LandMark>
 		<LandMark mark_id="6" name="LM6 Fuente S" id="12">

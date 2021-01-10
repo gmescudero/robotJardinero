@@ -158,7 +158,7 @@
 		</LandMark>
 		<LandMark mark_id="5" name="LM5: Esquina NO" id="11">
 			<position>
-				{26.4,0,0.2}
+				{26.4,0.1,0.2}
 			</position>
 		</LandMark>
 		<LandMark mark_id="6" name="LM6 Fuente S" id="12">

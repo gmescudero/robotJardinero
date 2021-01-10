@@ -3,17 +3,17 @@ clearvars; clc;
 
 % Definimos una trayectoria circular
 h = 0.5;    % Actualizacion de sensores
-v = 0.0;    % Velocidad lineal
-w = 0.5;    % Velocidad angular
+v = 0.1;    % Velocidad lineal
+w = 0.0;    % Velocidad angular
 
 % Posicion robot 
-robot.pos = [0, 0, 0];
+robot.pos = [-3, -2.5, 0];
 robot.ang = [0];
 apoloPlaceMRobot('Marvin', robot.pos, robot.ang);
 
 % Inicializamos la posición inicial
 Xrealk = [robot.pos(1); robot.pos(2); robot.ang];
-Xk = [0; 0; 0];
+Xk = [-3; -2.5; 0];
 
 % Posicion del laser respecto al robot
 laser.pos(1) = 0;
@@ -26,8 +26,8 @@ laserPosYRef = laser.pos(1)*sin(robot.ang) + laser.pos(2)*cos(robot.ang);
 laserAngRef = robot.ang + laser.ang;
 
 % Varianza del ruido del proceso 
-Qv = 0;
-Qw = 0;
+Qv = 0.0170;
+Qw = 0.0110;
 Qk_1 = [Qv 0; 0 Qw];
 
 % Inicializacion matriz P
@@ -66,7 +66,7 @@ e_ = 0;
 
 % Algoritmo
 t = 0;
-tmax = 200;
+tmax = 60;
 tAcum = [];
 k = 1;
 wpind = 1;
@@ -74,6 +74,7 @@ Ktotal = zeros(3);
 Eacumulado1 = [];
 Eacumulado2 = [];
 Eacumulado3 = [];
+X_realk = robot.pos;
 while t<tmax
     
     % Comprueba si esta en el wp y si es asi pasa al siguiente wp
@@ -210,6 +211,12 @@ while t<tmax
     
     %Sólo para almacenarlo
     Xestimado(:,k) = Xk;
+    
+    Vestimado(:,k) = (Xrealk(1) - Xk_1(1))/(h*cos(Xrealk(3)/2 + Xk_1(3)/2));
+    Westimado(:,k) = (Xrealk(3) - Xk_1(3))/h;
+    ErrorV(:,k) = v - Vestimado(:,k);
+    ErrorW(:,k) = w - Westimado(:,k);
+    
     Pacumulado(1,k) = Pk(1,1);
     Pacumulado(2,k) = Pk(2,2);
     Pacumulado(3,k) = Pk(3,3);
@@ -218,16 +225,30 @@ while t<tmax
     t = t+h;
     tAcum(end+1) = t;
     k = k + 1;
+    X_realk = Xrealk;
     apoloUpdate;
 end 
 
 % temporal para calibracion
-mean(Eacumulado1)
-std(Eacumulado1)
-mean(Eacumulado2)
-std(Eacumulado2)
-mean(Eacumulado3)
-std(Eacumulado3)
+% mean(Eacumulado1)
+% std(Eacumulado1)
+% mean(Eacumulado2)
+% std(Eacumulado2)
+% mean(Eacumulado3)
+% std(Eacumulado3)
+
+mean(ErrorV(2:end))
+std(ErrorV(2:end))
+mean(ErrorW(2:end))
+std(ErrorW(2:end))
+
+figure(5)
+subplot(2,1,1)
+plot(tAcum,Vestimado)
+title('Velocidad lineal estimada')
+subplot(2,1,2)
+plot(tAcum,Westimado)
+title('Velocidad angular estimada')
 
 % Representacion grafica
 figure(1);

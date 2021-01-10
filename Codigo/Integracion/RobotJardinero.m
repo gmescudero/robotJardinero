@@ -10,16 +10,16 @@ load balizas_jardin.mat
 % BW(x,y)
 load jardinBinMapWithFountain.mat
 
-h = 0.25; % Refresh rate
+h = 0.1; % Refresh rate
 tmax = 500;
 
 % max vels
 vMax = 0.25;
-wMax = 1.00;
+wMax = 0.90;
 
 % Planning
 % goal = [12, 6];
-goal = [25.5, 6];
+goal = [26, 6.5];
 xSize = 26.5;
 tgtRange = 1;
 tgtReplanTh = 4;
@@ -30,11 +30,11 @@ robot.pos  = [0.5,0.5, 0];
 robot.ang  = 0;
 
 % Controller parameters
-controller.Kp        = 0.30;
+controller.Kp        = 0.20;
 controller.Ki        = 0.00;
-controller.Kd        = 0.70;
+controller.Kd        = 1.00;
 controller.sampleT   = h;
-controller.reachedTh = 0.2;
+controller.reachedTh = 0.30;
 
 %% Initialization
 % Timing params
@@ -56,9 +56,9 @@ Xk = Xrealk;
 laser.name = 'LMS100';
 
 % Inicializacion matriz P
-Pxini       = 1e-1;
-Pyini       = 1e-1;
-Pthetaini   = 1e-1;
+Pxini       = 1e-3;
+Pyini       = 1e-3;
+Pthetaini   = 1e-3;
 Pk = diag([Pxini,Pyini,Pthetaini]);
 
 % Planning
@@ -87,9 +87,6 @@ loop = true;
 while (0 ~= ret) && (t < tmax) && loop
     k=k+1;
     
-    % Retrieve the robot location from Kalman filter
-    [Xk,Pk] = getLocation(robot.name,laser.name,LM,Xk,Pk,h,v,w);
-    
     % Trajectory controller
     [vControl,wControl,wpReached] = controllerPID(controller,Xk,wp(wpind,:));
     if wpind >= length(wp) && wpReached
@@ -103,13 +100,13 @@ while (0 ~= ret) && (t < tmax) && loop
     
     % Check if replan is needed
     if tgtDist > tgtReplanTh
-        [ret,wp] = mappingAndPlan(2,BW,Xk,goal,cellsPerMeter);
-        if 0 == ret
-            disp('Replaning error');
-            loop = false;
-        else
-            wpind = 1;
-        end
+%         [ret,wp] = mappingAndPlan(2,BW,Xk,goal,cellsPerMeter);
+%         if 0 == ret
+%             disp('Replaning error');
+%             loop = false;
+%         else
+%             wpind = 1;
+%         end
     else
         % Choose next waypoint
         while tgtDist < tgtRange && wpind < length(wp(:,1))
@@ -143,10 +140,13 @@ while (0 ~= ret) && (t < tmax) && loop
         ret = apoloMoveMRobot(robot.name, [v w], h);
     end
     
+    % Retrieve the robot location from Kalman filter
+    [Xk,Pk] = getLocation(robot.name,laser.name,LM,Xk,Pk,h,v,w);
+    
     % New iteration
     t = t+h;
     apoloUpdate();
-    pause(h/4);
+%     pause(h/4);
     
     %% Data adquisition
     XrealAUX = apoloGetLocationMRobot(robot.name);
@@ -215,9 +215,16 @@ figure(2)
 
 imshow (~BW)
 hold on
+plot(Xestimado(1,:)*cellsPerMeter, Xestimado(2,:)*cellsPerMeter, 'b.');
 plot(Xreal(1,:)*cellsPerMeter, Xreal(2,:)*cellsPerMeter, 'r');
 for i = 1:length(wp(:,1))
     x = wp(i,1)*cellsPerMeter;
     y = wp(i,2)*cellsPerMeter;
-    plot(x,y, 'o');
+    plot(x,y, 'mo');
 end
+for i = 1:length(LM(:,1))
+    x = LM(i,1)*cellsPerMeter;
+    y = LM(i,2)*cellsPerMeter;
+    plot(x,y, 'go')
+end
+hold off

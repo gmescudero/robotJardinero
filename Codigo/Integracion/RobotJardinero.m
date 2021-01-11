@@ -87,6 +87,9 @@ loop = true;
 while (0 ~= ret) && (t < tmax) && loop
     k=k+1;
     
+    % Retrieve the robot location from Kalman filter
+    [Xk,Pk] = getLocation(robot.name,laser.name,LM,Xk,Pk,h,v,w);
+    
     % Trajectory controller
     [vControl,wControl,wpReached] = controllerPID(controller,Xk,wp(wpind,:));
     if wpind >= length(wp) && wpReached
@@ -100,6 +103,7 @@ while (0 ~= ret) && (t < tmax) && loop
     
     % Check if replan is needed
     if tgtDist > tgtReplanTh
+        loop = false;
 %         [ret,wp] = mappingAndPlan(2,BW,Xk,goal,cellsPerMeter);
 %         if 0 == ret
 %             disp('Replaning error');
@@ -139,9 +143,6 @@ while (0 ~= ret) && (t < tmax) && loop
         % Movement
         ret = apoloMoveMRobot(robot.name, [v w], h);
     end
-    
-    % Retrieve the robot location from Kalman filter
-    [Xk,Pk] = getLocation(robot.name,laser.name,LM,Xk,Pk,h,v,w);
     
     % New iteration
     t = t+h;

@@ -4,10 +4,10 @@ function [Xk,Pk] = getLocation(robot,laser,LM,Xk_1,Pk_1,h,v,w)
 % Varianza del ruido del proceso 
 % Qv = 0.0018;
 % Qw = 0.001;
-Qv = 0.0;
-Qw = 0.0;
-% Qk_1 = diag([Qv,Qv,Qw]);
-Qk_1 = diag([Qv,Qw]);
+Qv = 0.017;
+Qw = 0.006;
+Qk_1 = diag([Qv,Qv,Qw]);
+% Qk_1 = diag([Qv,Qw]);
 
 % Varianza en la medida
 R1 = 0.0136;
@@ -27,27 +27,37 @@ for j = 1:length(baliza.distance)
 end
 
 %% Prediccion del estado (Modelo de odometria)
+Uk = (apoloGetOdometry(robot))';
+apoloResetOdometry(robot);
 
-% TODO: For some reason the apolo odometry does not work correctly
-% Uk = (apoloGetOdometry(robot))';
-% apoloResetOdometry(robot);
+X_k = [Xk_1(1) + Uk(1)*cos(Xk_1(3)) - Uk(2)*sin(Xk_1(3));
+       Xk_1(2) + Uk(1)*sin(Xk_1(3)) + Uk(2)*cos(Xk_1(3));
+       Xk_1(3) + Uk(3)];
+
+Ak = [  [1, 0, -Uk(1)*sin(Xk_1(3)) - Uk(2)*cos(Xk_1(3))];
+        [0, 1,  Uk(1)*cos(Xk_1(3)) - Uk(2)*sin(Xk_1(3))];
+        [0, 0,  1];
+];
+Bk = [  [cos(Xk_1(3)), 0,            0];
+        [0,            sin(Xk_1(3)), 0];
+        [0,            0,            1]; 
+];
+
+P_k = Ak*Pk_1*Ak' + Bk*Qk_1*Bk';
+
+% Uk = [v*h*cos(Xk_1(3)+(w*h/2));
+%       v*h*sin(Xk_1(3)+(w*h/2));
+%       w*h];
 % 
-% Ak = h*eye(3);
-% Bk = h*eye(3);
-
-Uk = [v*h*cos(Xk_1(3)+(w*h/2));
-      v*h*sin(Xk_1(3)+(w*h/2));
-      w*h];
-
-Ak = [  1 0 (-v*h*sin(Xk_1(3)+w*h/2));
-        0 1 ( v*h*cos(Xk_1(3)+w*h/2));
-        0 0 1                             ]; % Fi
-Bk = [  (cos(Xk_1(3)+w*h/2)) (-0.5*v*h*sin(Xk_1(3)+w*h/2));
-        (sin(Xk_1(3)+w*h/2)) ( 0.5*v*h*cos(Xk_1(3)+w*h/2));
-        0                     1          ]; % G
+% Ak = [  1 0 (-v*h*sin(Xk_1(3)+w*h/2));
+%         0 1 ( v*h*cos(Xk_1(3)+w*h/2));
+%         0 0 1                             ]; % Fi
+% Bk = [  (cos(Xk_1(3)+w*h/2)) (-0.5*v*h*sin(Xk_1(3)+w*h/2));
+%         (sin(Xk_1(3)+w*h/2)) ( 0.5*v*h*cos(Xk_1(3)+w*h/2));
+%         0                     1          ]; % G
     
-X_k = Xk_1 + Uk;
-P_k = Ak*Pk_1*((Ak)') + Bk*Qk_1*((Bk)');
+% X_k = Xk_1 + Uk;
+% P_k = Ak*Pk_1*((Ak)') + Bk*Qk_1*((Bk)');
 
 
 if X_k(3) < -pi

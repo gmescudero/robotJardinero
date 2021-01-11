@@ -253,6 +253,12 @@
 				{1.4,7.2,0.2}
 			</position>
 		</LandMark>
+		<LandMark mark_id="24" name="LM24: ZonaNO6">
+			<position>
+				{22.7,8.4,0.2}
+			</position>
+		</LandMark>
+		
 		<PrismaticPart name="Seto 1" id="32">
 			<orientation>
 				{0,0,-1.5708}

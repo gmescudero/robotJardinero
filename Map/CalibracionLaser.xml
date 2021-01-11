@@ -95,37 +95,10 @@
 		<!-- SENSORES -->
 		<LMS100Sim name="LMS100" id="3" linkTo="$Marvin$">
 			<position>
-				{0.1,0,0.4}
+				{0,0,0.4}
 			</position>
 			<colour r="0" g="1" b="0"/>
 		</LMS100Sim>
-		<UltrasonicSensor conusAngle="0.174533" maxRange="3" minRange="0.05" error="0" name="uc0" id="4" linkTo="$Marvin$">
-			<orientation>
-				{0,-0.1,0}
-			</orientation>
-			<position>
-				{0.2,0,0.2}
-			</position>
-			<colour r="0" g="1" b="0"/>
-		</UltrasonicSensor>
-		<UltrasonicSensor conusAngle="0.174533" maxRange="3" minRange="0.05" error="0" name="ul1" id="5" linkTo="$Marvin$">
-			<orientation>
-				{0.0,-0.1,0.7}
-			</orientation>
-			<position>
-				{0.18,0.11,0.2}
-			</position>
-			<colour r="0" g="1" b="0"/>
-		</UltrasonicSensor>
-		<UltrasonicSensor conusAngle="0.174533" maxRange="3" minRange="0.05" error="0" name="ur1" id="6" linkTo="$Marvin$">
-			<orientation>
-				{0.0,-0.1,-0.7}
-			</orientation>
-			<position>
-				{0.18,-0.11,0.2}
-			</position>
-			<colour r="0" g="1" b="0"/>
-		</UltrasonicSensor>
 		
 		<!-- BALIZAS -->
 		<LandMark mark_id="1" name="LM1">

@@ -60,26 +60,4 @@ disp(['X(2): mean: ', num2str(mean(X_k(:,2))), ', std: ',  num2str(std(X_k(:,2))
 disp(['X(3): mean: ', num2str(mean(X_k(:,3))), ', std: ',  num2str(std(X_k(:,3)))])
 
 
-%% results
-% REAL [X,Y,V,W]: [ 0.81778 0.50139 1 1 ]
-% X: mean: 0.81767, std: 0.014335
-% Y: mean: 0.50138, std: 0.009588
-% V: mean: 0.95916, std: 0.016541
-% W: mean: 0.99997, std: 0.0064275
-
-% REAL [X,Y,V,W]: [ 1 0 1 0 ]
-% X: mean: 0.99992, std: 0.017064
-% Y: mean: 0, std: 0
-% V: mean: 0.99992, std: 0.017064
-% W: mean: 0, std: 0
-
-% REAL [X,Y,V,W]: [0, 1, 1, 0]
-% X: mean: 1.0004, std: 0.017367
-% Y: mean: 0, std: 0
-% V: mean: 1.0004, std: 0.017367
-% W: mean: 0, std: 0
-
-%% Conclusion
-% The X and Y values are calculated from the last X Y axes of the robot so
-% we have to adapt to that
 

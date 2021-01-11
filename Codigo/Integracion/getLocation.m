@@ -10,9 +10,9 @@ Qk_1 = diag([Qv,Qv,Qw]);
 % Qk_1 = diag([Qv,Qw]);
 
 % Varianza en la medida
-R1 = 0.0136;
-R2 = 0.0090;
-R3 = 0.0100;
+R1 = 0.013;
+R2 = 0.013;
+R3 = 0.013;
 
 %% RETRIEVE LM
 % Se realiza una busqueda de balizas por el laser

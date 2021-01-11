@@ -1,99 +1,53 @@
 %% Calibrar Laser
-clear;
+clearvars;
 % ------------------------------------------------------------------------
 %% Inicializacion de variables
 % Posicion balizas
-LM(1,:) = [-3.9, 0.0, 0.2];
-LM(2,:) = [-3.9, 3.9, 0.2];
-LM(3,:) = [0.0, 3.9, 0.2];
-LM(4,:) = [3.9, 3.9, 0.2];
-LM(5,:) = [3.9, 0.0, 0.2];
-% Posicion robot 
-robot.pos = [0, 0, 0];
-robot.ang = [pi/2];
-% Posicion del laser respecto al robot
-laser.pos(1) = 0.1;
-laser.pos(2) = 0;
-laser.ang = 0;
-apoloPlaceMRobot('Marvin', robot.pos, robot.ang);
+load('balizas_calibracion.mat')
 
-% Pasamos la posición del laser a cordenadas refenciales
-laserPosXRef = laser.pos(1)*cos(robot.ang) - laser.pos(2)*sin(robot.ang);
-laserPosYRef = laser.pos(1)*sin(robot.ang) + laser.pos(2)*cos(robot.ang);
-laserAngRef = robot.ang + laser.ang;
+% Posicion robot 
+robot.name = 'Marvin';
+robot.laserName = 'LMS100';
+robot.pos = [3, -2.5, 0];
+robot.ang = pi/2;
+
+% Posicion del laser respecto al robot
+apoloPlaceMRobot(robot.name, robot.pos, robot.ang);
+apoloUpdate();
 
 % Numero pruebas
 N = 100;
-% Numero de balizas a probar
-K = 5;
 
-% Inicializacion de matrices
-errorX = [];
-errorY = [];
-errorAng = [];
-x_est_laser = [];
-y_est_laser = [];
-ang_est_laser = [];
+estLM = LM;
 
-% Inicio de toma de medidas
-for i = 1:N
-    % Se realiza una busqueda de balizas por el laser
-    apoloUpdate;
-    baliza = apoloGetLaserLandMarks('LMS100');
-    for j = 1:K
-        % Extaccion de las medidas realizadas por el laser
-        distancia_laser = baliza.distance(j);
-        angulo_laser = baliza.angle(j);
-        % Estimacion de la posicion a partir de los datos obtenidos por el
-        % laser
-        x_est_laser(end+1) = - distancia_laser*sin(angulo_laser) + laserPosXRef;
-        y_est_laser(end+1) = distancia_laser*cos(angulo_laser) + laserPosYRef;
-        ang_est_laser(end+1) = angulo_laser + laserAngRef - pi/2;
-        % Calculo del error
-        errorX(end+1) = LM(j,1) - x_est_laser(end);
-        errorY(end+1) = LM(j,2) - y_est_laser(end);
-        errorAng(end+1) = atan2(LM(j,1),LM(j,2)) + ang_est_laser(end);
+[balizasNum, medidasNum] = size(LM);
+Z_real = zeros(balizasNum, medidasNum);
+Z_dist = zeros(balizasNum,N);
+Z_angl = zeros(balizasNum,N);
+
+for i = 1:length(LM(:,1))
+    id = 1;
+    % Calculo de matriz Zk_
+    incX = LM(id,1)-robot.pos(1);
+    incY = LM(id,2)-robot.pos(2);
+    incAng = atan2(incY,incX) - robot.ang;
+
+    Z_real(id,1) = sqrt(incX^2+incY^2);
+    Z_real(id,2) = incAng;
+end
+
+for j = 1:N
+    baliza = apoloGetLaserLandMarks(robot.laserName);
+    for i = 1:length(baliza.id)
+        id = baliza.id(i);      
+        
+        Z_dist(id,j) = baliza.distance(i);
+        Z_angl(id,j) = baliza.angle(i);
     end
 end
 
-% Extraemos la media del error
-e_x_med = mean(errorX);
-e_y_med = mean(errorY);
-e_ang_med = mean(errorAng);
+std(Z_dist')
+std(Z_angl')
 
-% Extraemos la varianza del error
-e_x_var = var(errorX);
-e_y_var = var(errorY);
-e_ang_var = var(errorAng);
-
-% Mostramos por pantalla
-disp('------------ Calibracion sensor ------------')
-disp(['Media del error: [' num2str(e_x_med) ', ' num2str(e_y_med) ', ' num2str(e_ang_med) ']'])
-disp(['Vaianza del error: [' num2str(e_x_var) ', ' num2str(e_y_var) ', ' num2str(e_ang_var) ']'])
-disp('--------------------------------------------')
-
-%% Ploteo
-
-% Ploteo de los errores
-figure(1)
-subplot(3,1,1)
-plot(errorX)
-title('Error en X')
-subplot(3,1,2)
-plot(errorY)
-title('Error en Y')
-subplot(3,1,3)
-plot(errorAng)
-title('Error en angulo')
-
-% Ploteo de las balizas y las posiciones estimadas de las mismas
-figure(2)
-% Dibujamos balizas
-plot(LM(:,1),LM(:,2),'o')
-hold on
-% Dibujamos posicion del robot
-plot(robot.pos(1),robot.pos(2),'kx');
-for i = 1:length(x_est_laser)
-    plot(x_est_laser(i), y_est_laser(i), 'r.')
-end
-hold off
+disp(['Z_dist: std: ',  num2str(mean(std(Z_dist')))])
+disp(['Z_angl: std: ',  num2str(mean(std(Z_angl')))])

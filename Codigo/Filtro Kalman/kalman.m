@@ -3,17 +3,17 @@ clearvars; clc;
 
 % Definimos una trayectoria circular
 h = 0.5;    % Actualizacion de sensores
-v = 0.00;    % Velocidad lineal
-w = 1;    % Velocidad angular
+v = 0.25/12;    % Velocidad lineal
+w = 0.10/12;    % Velocidad angular
 
 % Posicion robot 
-robot.pos = [-3, -2.5, 0];
-robot.ang = [0];
+robot.pos = [-2.5, 0, 0];
+robot.ang = [-pi/2];
 apoloPlaceMRobot('Marvin', robot.pos, robot.ang);
 
 % Inicializamos la posición inicial
 Xrealk = [robot.pos(1); robot.pos(2); robot.ang];
-Xk = [-3; -2.5; 0];
+Xk = [-2.5; 0; -pi/2];
 
 % Posicion del laser respecto al robot
 laser.pos(1) = 0;
@@ -31,9 +31,9 @@ Qw = 0.0190;
 Qk_1 = [Qv 0; 0 Qw];
 
 % Inicializacion matriz P
-Pxini = 1e-3;
-Pyini = 1e-3;
-Pthetaini = 1e-3;
+Pxini = 0.013;
+Pyini = 0.010;
+Pthetaini = 0.010;
 Pk = [Pxini 0 0; 0 Pyini 0; 0 0 Pthetaini];
 
 % Varianza en la medida
@@ -66,7 +66,7 @@ e_ = 0;
 
 % Algoritmo
 t = 0;
-tmax = 20;
+tmax = 500;
 tAcum = [];
 k = 1;
 wpind = 1;
@@ -176,7 +176,7 @@ while t<tmax
         % Calculo de matriz Hk
         Hk(3*j-2,:) = [incX/sqrt(incX^2+incY^2) incY/sqrt(incX^2+incY^2) 0];
         Hk(3*j-1,:) = [-incY*cos(-incAng)/(incX^2+incY^2) incX*cos(-incAng)/(incX^2+incY^2) -cos(-incAng)];
-        Hk(3*j,:) = [incY*sin(-incAng)/(incX^2+incY^2) -incX*sin(incAng)/(incX^2+incY^2) -sin(-incAng)];
+        Hk(3*j,:) = [incY*sin(-incAng)/(incX^2+incY^2) -incX*sin(-incAng)/(incX^2+incY^2) -sin(-incAng)];
         % Calculo de matriz Rk
         Rk_aux(3*j-2) = R1;
         Rk_aux(3*j-1) = R2;
@@ -212,10 +212,15 @@ while t<tmax
     %Sólo para almacenarlo
     Xestimado(:,k) = Xk;
     
+    % Temporal, solo para calibracion
     Vestimado(:,k) = (Xrealk(1) - X_realk(1))/(h*cos(Xrealk(3)/2 + X_realk(3)/2));
     Westimado(:,k) = (Xrealk(3) - X_realk(3))/h;
     ErrorV(:,k) = v - Vestimado(:,k);
     ErrorW(:,k) = w - Westimado(:,k);
+    
+    Eacumulado1(k) = Xrealk(1) - X_k(1);
+    Eacumulado2(k) = Xrealk(2) - X_k(2);
+    Eacumulado3(k) = Xrealk(3) - X_k(3);
     
     Pacumulado(1,k) = Pk(1,1);
     Pacumulado(2,k) = Pk(2,2);
@@ -230,17 +235,17 @@ while t<tmax
 end 
 
 % temporal para calibracion
-% mean(Eacumulado1)
-% std(Eacumulado1)
-% mean(Eacumulado2)
-% std(Eacumulado2)
-% mean(Eacumulado3)
-% std(Eacumulado3)
+mean(Eacumulado1)
+std(Eacumulado1)
+mean(Eacumulado2)
+std(Eacumulado2)
+mean(Eacumulado3)
+std(Eacumulado3)
 
-mean(ErrorV(2:end))
-std(ErrorV(2:end))
-mean(ErrorW(2:end))
-std(ErrorW(2:end))
+% mean(ErrorV(2:end))
+% std(ErrorV(2:end))
+% mean(ErrorW(2:end))
+% std(ErrorW(2:end))
 
 figure(5)
 subplot(2,1,1)

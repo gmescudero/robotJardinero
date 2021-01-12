@@ -19,8 +19,8 @@ wMax = 1.00;
 
 % Planning
 % goal = [12, 6];
-% goal = [26, 6.5];
-goal = [21.5, 3.6];
+goal = [26, 6.5];
+% goal = [21.5, 3.6];
 xSize = 26.5;
 tgtRange = 1;
 tgtReplanTh = 4;

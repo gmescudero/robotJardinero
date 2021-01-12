@@ -76,7 +76,7 @@ for j = 1:length(baliza.distance)
     % Calculo de matriz Hk
     Hk(3*j-2,:) = [incX/sqrt(incX^2+incY^2) incY/sqrt(incX^2+incY^2) 0];
     Hk(3*j-1,:) = [-incY*cos(-incAng)/(incX^2+incY^2) incX*cos(-incAng)/(incX^2+incY^2) -cos(-incAng)];
-    Hk(3*j,:) = [incY*sin(-incAng)/(incX^2+incY^2) -incX*sin(incAng)/(incX^2+incY^2) -sin(-incAng)];
+    Hk(3*j,:) = [incY*sin(-incAng)/(incX^2+incY^2) -incX*sin(-incAng)/(incX^2+incY^2) -sin(-incAng)];
     % Calculo de matriz Rk
     Rk_aux(3*j-2)   = R1;
     Rk_aux(3*j-1)   = R2;

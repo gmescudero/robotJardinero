@@ -35,7 +35,7 @@ controller.Kp        = 0.40;
 controller.Ki        = 0.00;
 controller.Kd        = 0.50;
 controller.sampleT   = h;
-controller.reachedTh = 0.15;
+controller.reachedTh = 0.25;
 
 %% Initialization
 % Timing params
@@ -93,6 +93,8 @@ while (0 ~= ret) && (t < tmax) && loop
     
     % Trajectory controller
     [vControl,wControl,wpReached] = controllerPID(controller,Xk,wp(wpind,:));
+    
+    % Goal Reached
     if wpind >= length(wp) && wpReached
         disp('Goal Reached!');
         loop = false;

@@ -1,0 +1,822 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<root>
+	<World>
+		<WorldInfo name="" id="0"/>
+		<FaceSetPart name="Parque" id="1">
+			<colour r="0.501961" g="0.25098" b="0.25098"/>
+			<face>
+				<colour g="0.9" b="0.6"/>
+				<vertex>
+					{0,0,0}
+					{0,13.5,0}
+					{26.5,13.5,0}
+					{26.5,0,0}
+				</vertex>
+			</face>
+			<face>
+				<colour r="0.2" g="0.2" b="0.8"/>
+				<vertex>
+					{0,0,0}
+					{0,2,0}
+					{13.5,2,0}
+					{13.5,0,0}
+				</vertex>
+				<orientation>
+					{1.5708,0,1.5708}
+				</orientation>
+			</face>
+			<face>
+				<colour r="0.2" g="0.2" b="0.8"/>
+				<vertex>
+					{0,0,0}
+					{0,2,0}
+					{26.5,2,0}
+					{26.5,0,0}
+				</vertex>
+				<orientation>
+					{1.5708,0,0}
+				</orientation>
+				<position>
+					{0,13.5,0}
+				</position>
+			</face>
+			<face>
+				<colour r="0.2" g="0.2" b="0.8"/>
+				<vertex>
+					{0,0,0}
+					{0,2,0}
+					{13.5,2,0}
+					{13.5,0,0}
+				</vertex>
+				<orientation>
+					{1.5708,0,-1.5708}
+				</orientation>
+				<position>
+					{26.5,13.5,0}
+				</position>
+			</face>
+			<face>
+				<colour r="0.2" g="0.2" b="0.8"/>
+				<vertex>
+					{0,0,0}
+					{0,2,0}
+					{26.5,2,0}
+					{26.5,0,0}
+				</vertex>
+				<orientation>
+					{1.5708,0,-3.14159}
+				</orientation>
+				<position>
+					{26.5,0,0}
+				</position>
+			</face>
+		</FaceSetPart>
+		<Pioneer3ATSim name="Marvin" id="2">
+			<orientation>
+				{0,-0,0.596659}
+			</orientation>
+			<position>
+				{25.6919,6.3342,0}
+			</position>
+			<odometry seconds="1610462610" microseconds="136000">
+				<orientation>
+					{0,-0,-2.78158}
+				</orientation>
+				<position>
+					{-139.388,-284.982,0}
+				</position>
+			</odometry>
+		</Pioneer3ATSim>
+		<LMS100Sim name="LMS100" id="3" linkTo="$Marvin$">
+			<position>
+				{0,0,0.4}
+			</position>
+			<colour r="0" g="1" b="0"/>
+		</LMS100Sim>
+		<UltrasonicSensor conusAngle="0.274533" maxRange="3" minRange="0.05" error="0" name="uc" id="4" linkTo="$Marvin$">
+			<orientation>
+				{0,-0.1,0}
+			</orientation>
+			<position>
+				{0.2,0,0.2}
+			</position>
+			<colour r="0" g="1" b="0"/>
+		</UltrasonicSensor>
+		<UltrasonicSensor conusAngle="0.274533" maxRange="3" minRange="0.05" error="0" name="uci" id="5" linkTo="$Marvin$">
+			<orientation>
+				{0,-0.1,0.52}
+			</orientation>
+			<position>
+				{0.2,0.06,0.2}
+			</position>
+			<colour r="0" g="1" b="0"/>
+		</UltrasonicSensor>
+		<UltrasonicSensor conusAngle="0.274533" maxRange="3" minRange="0.05" error="0" name="ucd" id="6" linkTo="$Marvin$">
+			<orientation>
+				{0,-0.1,-0.52}
+			</orientation>
+			<position>
+				{0.2,-0.06,0.2}
+			</position>
+			<colour r="0" g="1" b="0"/>
+		</UltrasonicSensor>
+		<UltrasonicSensor conusAngle="0.274533" maxRange="3" minRange="0.05" error="0" name="ul" id="7" linkTo="$Marvin$">
+			<orientation>
+				{3.46945e-17,-0.1,1.0472}
+			</orientation>
+			<position>
+				{0.18,0.11,0.2}
+			</position>
+			<colour r="0" g="1" b="0"/>
+		</UltrasonicSensor>
+		<UltrasonicSensor conusAngle="0.274533" maxRange="3" minRange="0.05" error="0" name="ur" id="8" linkTo="$Marvin$">
+			<orientation>
+				{-3.46945e-17,-0.1,-1.0472}
+			</orientation>
+			<position>
+				{0.18,-0.11,0.2}
+			</position>
+			<colour r="0" g="1" b="0"/>
+		</UltrasonicSensor>
+		<LandMark mark_id="1" name="LM1: Fuente NO" id="9">
+			<position>
+				{11.55,5.05,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="2" name="LM2: Esquina SO" id="10">
+			<position>
+				{0.1,0.1,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="3" name="LM3: Esquina SE" id="11">
+			<position>
+				{0.1,13.4,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="4" name="LM4: Esquina NE" id="12">
+			<position>
+				{26.4,13.4,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="5" name="LM5: Esquina NO" id="13">
+			<position>
+				{26.4,0.1,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="6" name="LM6: Fuente SO" id="14">
+			<position>
+				{8.8,5.05,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="7" name="LM7: Fuente NE" id="15">
+			<position>
+				{11.5,8.25,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="8" name="LM8: Fuente SE" id="16">
+			<position>
+				{8.8,8,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="9" name="LM9: ZonaNO1" id="17">
+			<position>
+				{15.7,9.9,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="10" name="LM10: ZonaNE1" id="18">
+			<position>
+				{15.5,3.3,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="11" name="LM11: ZonaNO2" id="19">
+			<position>
+				{20.5,7.3,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="12" name="LM12: ZonaNE2" id="20">
+			<position>
+				{20.5,6.1,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="13" name="LM13: ZonaNO3" id="21">
+			<position>
+				{20.3,12.2,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="14" name="LM14: ZonaNE3" id="22">
+			<position>
+				{20.3,1.1,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="15" name="LM15: ZonaNO4" id="23">
+			<position>
+				{25.8,5.6,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="16" name="LM16: ZonaNE4" id="24">
+			<position>
+				{22.4,7.1,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="17" name="LM17: ZonaNO5" id="25">
+			<position>
+				{25.8,8.4,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="18" name="LM18: ZonaNE5" id="26">
+			<position>
+				{22.5,5,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="19" name="LM19: ZonaE1" id="27">
+			<position>
+				{11.3,0.7,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="20" name="LM20: ZonaO1" id="28">
+			<position>
+				{11.4,12.4,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="21" name="LM21: ZonaSO1" id="29">
+			<position>
+				{4.6,9.1,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="22" name="LM22: ZonaSE1" id="30">
+			<position>
+				{5.4,4.5,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="23" name="LM23: ZonaS1" id="31">
+			<position>
+				{1.4,7.2,0.2}
+			</position>
+		</LandMark>
+		<LandMark mark_id="24" name="LM24: ZonaNO6" id="32">
+			<position>
+				{22.7,8.4,0.2}
+			</position>
+		</LandMark>
+		<PrismaticPart name="Seto 1" id="33">
+			<orientation>
+				{0,0,-1.5708}
+			</orientation>
+			<position>
+				{3,7.5,0}
+			</position>
+			<colour r="0" g="0.25098" b="0"/>
+			<face>
+				<vertex>
+					{0,-2,0}
+					{0,4,0}
+					{-4,-2,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		<PrismaticPart name="Seto 2" id="34">
+			<orientation>
+				{-3.14159,1.22465e-16,1.57079}
+			</orientation>
+			<position>
+				{3,6,1}
+			</position>
+			<colour r="0" g="0.25098" b="0"/>
+			<face>
+				<vertex>
+					{0,-2,0}
+					{0,4,0}
+					{-4,-2,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		<PrismaticPart name="Seto 3" id="35">
+			<position>
+				{2.5,1,0}
+			</position>
+			<colour r="0" g="0.25098" b="0"/>
+			<face>
+				<vertex>
+					{0,0,0}
+					{3.4,2.3,0}
+					{6.8,0,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		<PrismaticPart name="Seto 4" id="36">
+			<orientation>
+				{3.14159,0,0}
+			</orientation>
+			<position>
+				{2.5,12.5,1}
+			</position>
+			<colour r="0" g="0.25098" b="0"/>
+			<face>
+				<vertex>
+					{0,0,0}
+					{3.4,2.3,0}
+					{6.8,0,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		<PrismaticPart name="Seto 5" id="37">
+			<orientation>
+				{0,0,-1.5708}
+			</orientation>
+			<position>
+				{9.5,5,0}
+			</position>
+			<colour r="0" g="0.25098" b="0"/>
+			<face>
+				<vertex>
+					{0.3,0,0}
+					{3.1,0,0}
+					{1.03636,-2.87273,0}
+					{-0.3,-1.1,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		<PrismaticPart name="Seto 6" id="38">
+			<orientation>
+				{-3.14159,1.22465e-16,1.57079}
+			</orientation>
+			<position>
+				{9.5,8.5,1}
+			</position>
+			<colour r="0" g="0.25098" b="0"/>
+			<face>
+				<vertex>
+					{0.3,0,0}
+					{3.1,0,0}
+					{1.03636,-2.87273,0}
+					{-0.3,-1.1,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		<PrismaticPart name="Seto lado" id="39">
+			<orientation>
+				{0,-0,-1.5708}
+			</orientation>
+			<position>
+				{12,12.5,0}
+			</position>
+			<colour r="0" g="0.25098" b="0"/>
+			<face>
+				<vertex>
+					{0,0,0}
+					{0,8,0}
+					{2.3,4,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		<PrismaticPart name="Seto lado2" id="40">
+			<orientation>
+				{0,-0,1.5708}
+			</orientation>
+			<position>
+				{19.8,1,0}
+			</position>
+			<colour r="0" g="0.25098" b="0"/>
+			<face>
+				<vertex>
+					{0,0,0}
+					{0,8,0}
+					{2.3,4,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		<PrismaticPart name="Seto medio" id="41">
+			<orientation>
+				{0,-0,1.5708}
+			</orientation>
+			<position>
+				{18.5,7.5,0}
+			</position>
+			<colour r="0" g="0.25098" b="0"/>
+			<face>
+				<vertex>
+					{0,0,0}
+					{0,5,0}
+					{1.66,2.5,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		<PrismaticPart name="Seto medio2" id="42">
+			<orientation>
+				{0,-0,-1.5708}
+			</orientation>
+			<position>
+				{13.5,6,0}
+			</position>
+			<colour r="0" g="0.25098" b="0"/>
+			<face>
+				<vertex>
+					{0,0,0}
+					{0,5,0}
+					{1.66,2.5,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		<PrismaticPart name="Seto medioraro" id="43">
+			<orientation>
+				{0,-0,1.5708}
+			</orientation>
+			<position>
+				{11.5,8.5,0}
+			</position>
+			<colour r="0" g="0.25098" b="0"/>
+			<face>
+				<vertex>
+					{0.3,0,0}
+					{3.1,0,0}
+					{1.03636,-2.87273,0}
+					{-0.3,-1.1,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		<PrismaticPart name="Seto medioraro2" id="44">
+			<orientation>
+				{3.14159,-0,-1.5708}
+			</orientation>
+			<position>
+				{11.5,5,1}
+			</position>
+			<colour r="0" g="0.25098" b="0"/>
+			<face>
+				<vertex>
+					{0.3,0,0}
+					{3.1,0,0}
+					{1.03636,-2.87273,0}
+					{-0.3,-1.1,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		<CylindricalPart height="0.3" name="Fuente 1" id="45">
+			<position>
+				{10.35,6.75,0}
+			</position>
+			<colour r="1" g="1" b="1"/>
+		</CylindricalPart>
+		<CylindricalPart height="1.8" radius="0.2" name="Fuente 2" id="46">
+			<position>
+				{10.35,6.75,0}
+			</position>
+			<colour r="1" g="1" b="1"/>
+		</CylindricalPart>
+		<CylindricalPart height="0.31" radius="0.8" name="Agua Fuente" id="47">
+			<position>
+				{10.35,6.75,0}
+			</position>
+			<colour r="0" g="0.25098" b="0.501961"/>
+		</CylindricalPart>
+		<CylindricalPart height="0.2" radius="0.4" name="Fuente 3" id="48">
+			<position>
+				{10.35,6.75,1.7}
+			</position>
+			<colour r="1" g="1" b="1"/>
+		</CylindricalPart>
+		<PrismaticPart name="SetoNW" id="49">
+			<orientation>
+				{0,-0,-1.5708}
+			</orientation>
+			<position>
+				{19,12.5,0}
+			</position>
+			<colour r="0" g="0.25098" b="0"/>
+			<face>
+				<vertex>
+					{4,7,0}
+					{0,7,0}
+					{0,2,0}
+					{4,4,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		<PrismaticPart name="SetoNE" id="50">
+			<orientation>
+				{3.14159,0,1.57079}
+			</orientation>
+			<position>
+				{19,1,1}
+			</position>
+			<colour r="0" g="0.25098" b="0"/>
+			<face>
+				<vertex>
+					{4,7,0}
+					{0,7,0}
+					{0,2,0}
+					{4,4,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		<PrismaticPart name="SetoTochoNW" id="51">
+			<orientation>
+				{0,-0,-1.5708}
+			</orientation>
+			<position>
+				{18.5,10.504,0}
+			</position>
+			<colour r="0" g="0.25098" b="0"/>
+			<face>
+				<vertex>
+					{0.8,-1.1,0}
+					{-0.7,1.4,0}
+					{2.3,3.4,0}
+					{3.1,2.5,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		<PrismaticPart name="SetoTochoNE" id="52">
+			<orientation>
+				{-3.14159,6.5359e-07,1.57079}
+			</orientation>
+			<position>
+				{18.5,3,1}
+			</position>
+			<colour r="0" g="0.25098" b="0"/>
+			<face>
+				<vertex>
+					{0.8,-1.1,0}
+					{-0.7,1.4,0}
+					{2.3,3.4,0}
+					{3.1,2.5,0}
+				</vertex>
+			</face>
+		</PrismaticPart>
+		<CylindricalPart height="2" radius="0.9" name="Caseta" id="53">
+			<position>
+				{23.5,6.75,0}
+			</position>
+			<colour r="0.309804" g="0.309804" b="0.309804"/>
+		</CylindricalPart>
+		<ComposedEntity name="Banco 1" id="54">
+			<PrismaticPart height="0.2" name="Pata1" id="0">
+				<face>
+					<vertex>
+						{0,0,0}
+						{0,0.5,0}
+						{0.2,0.5,0}
+						{0.2,0,0}
+					</vertex>
+				</face>
+			</PrismaticPart>
+			<PrismaticPart height="0.2" name="pata2" id="1">
+				<orientation>
+					{0,0,1.5708}
+				</orientation>
+				<position>
+					{1,0,0}
+				</position>
+				<face>
+					<vertex>
+						{0,0,0}
+						{0.5,0,0}
+						{0.5,0.2,0}
+						{0,0.2,0}
+					</vertex>
+				</face>
+			</PrismaticPart>
+			<PrismaticPart height="0.2" name="asiento" id="2">
+				<position>
+					{-0.1,-0.05,0.2}
+				</position>
+				<face>
+					<vertex>
+						{0,0,0}
+						{1.2,0,0}
+						{1.2,0.6,0}
+						{0,0.6,0}
+					</vertex>
+				</face>
+			</PrismaticPart>
+			<orientation>
+				{0,0,1.5708}
+			</orientation>
+			<position>
+				{11.4,2.7,0}
+			</position>
+		</ComposedEntity>
+		<ComposedEntity name="Banco 2" id="55">
+			<PrismaticPart height="0.2" name="Pata1" id="0">
+				<face>
+					<vertex>
+						{0,0,0}
+						{0,0.5,0}
+						{0.2,0.5,0}
+						{0.2,0,0}
+					</vertex>
+				</face>
+			</PrismaticPart>
+			<PrismaticPart height="0.2" name="pata2" id="1">
+				<orientation>
+					{0,0,1.5708}
+				</orientation>
+				<position>
+					{1,0,0}
+				</position>
+				<face>
+					<vertex>
+						{0,0,0}
+						{0.5,0,0}
+						{0.5,0.2,0}
+						{0,0.2,0}
+					</vertex>
+				</face>
+			</PrismaticPart>
+			<PrismaticPart height="0.2" name="asiento" id="2">
+				<position>
+					{-0.1,-0.05,0.2}
+				</position>
+				<face>
+					<vertex>
+						{0,0,0}
+						{1.2,0,0}
+						{1.2,0.6,0}
+						{0,0.6,0}
+					</vertex>
+				</face>
+			</PrismaticPart>
+			<orientation>
+				{0,0,1.5708}
+			</orientation>
+			<position>
+				{11.4,9.5,0}
+			</position>
+		</ComposedEntity>
+		<ComposedEntity name="Banco 3" id="56">
+			<PrismaticPart height="0.2" name="Pata1" id="0">
+				<face>
+					<vertex>
+						{0,0,0}
+						{0,0.5,0}
+						{0.2,0.5,0}
+						{0.2,0,0}
+					</vertex>
+				</face>
+			</PrismaticPart>
+			<PrismaticPart height="0.2" name="pata2" id="1">
+				<orientation>
+					{0,0,1.5708}
+				</orientation>
+				<position>
+					{1,0,0}
+				</position>
+				<face>
+					<vertex>
+						{0,0,0}
+						{0.5,0,0}
+						{0.5,0.2,0}
+						{0,0.2,0}
+					</vertex>
+				</face>
+			</PrismaticPart>
+			<PrismaticPart height="0.2" name="asiento" id="2">
+				<position>
+					{-0.1,-0.05,0.2}
+				</position>
+				<face>
+					<vertex>
+						{0,0,0}
+						{1.2,0,0}
+						{1.2,0.6,0}
+						{0,0.6,0}
+					</vertex>
+				</face>
+			</PrismaticPart>
+			<orientation>
+				{0,0,2.19911}
+			</orientation>
+			<position>
+				{4.4,2.7,0}
+			</position>
+		</ComposedEntity>
+		<CylindricalPart height="0.5" radius="0.2" name="Papelera1" id="57">
+			<position>
+				{1.5,7.3,0}
+			</position>
+		</CylindricalPart>
+		<CylindricalPart height="0.6" radius="0.2" name="Papelera2" id="58">
+			<position>
+				{18.4,7.3,0}
+			</position>
+		</CylindricalPart>
+		<CylindricalPart height="0.5" radius="0.2" name="Papelera3" id="59">
+			<position>
+				{6.7,6.2,0}
+			</position>
+		</CylindricalPart>
+		<CylindricalPart height="0.5" radius="0.2" name="Papelera4" id="60">
+			<position>
+				{13.6,7.3,0}
+			</position>
+		</CylindricalPart>
+		<ComposedEntity name="Farola 1" id="61">
+			<CylindricalPart height="1.8" radius="0.05" name="Cuerpo" id="0"/>
+			<CylindricalPart height="0.25" radius="0.2" name="Luz" id="1">
+				<position>
+					{0,0,1.55}
+				</position>
+				<colour r="1" g="1" b="0.501961"/>
+			</CylindricalPart>
+			<CylindricalPart height="0.05" radius="0.25" name="Tapa" id="2">
+				<position>
+					{0,0,1.8}
+				</position>
+				<colour r="0.219608" g="0.219608" b="0.219608"/>
+			</CylindricalPart>
+			<position>
+				{0.9,2.2,0}
+			</position>
+		</ComposedEntity>
+		<ComposedEntity name="Farola 2" id="62">
+			<CylindricalPart height="1.8" radius="0.05" name="Cuerpo" id="0"/>
+			<CylindricalPart height="0.25" radius="0.2" name="Luz" id="1">
+				<position>
+					{0,0,1.55}
+				</position>
+				<colour r="1" g="1" b="0.501961"/>
+			</CylindricalPart>
+			<CylindricalPart height="0.05" radius="0.25" name="Tapa" id="2">
+				<position>
+					{0,0,1.8}
+				</position>
+				<colour r="0.219608" g="0.219608" b="0.219608"/>
+			</CylindricalPart>
+			<position>
+				{13.5,5.8,0}
+			</position>
+		</ComposedEntity>
+		<ComposedEntity name="Farola 3" id="63">
+			<CylindricalPart height="1.8" radius="0.05" name="Cuerpo" id="0"/>
+			<CylindricalPart height="0.25" radius="0.2" name="Luz" id="1">
+				<position>
+					{0,0,1.55}
+				</position>
+				<colour r="1" g="1" b="0.501961"/>
+			</CylindricalPart>
+			<CylindricalPart height="0.05" radius="0.25" name="Tapa" id="2">
+				<position>
+					{0,0,1.8}
+				</position>
+				<colour r="0.219608" g="0.219608" b="0.219608"/>
+			</CylindricalPart>
+			<position>
+				{7,7.7,0}
+			</position>
+		</ComposedEntity>
+		<ComposedEntity name="Farola 4" id="64">
+			<CylindricalPart height="1.8" radius="0.05" name="Cuerpo" id="0"/>
+			<CylindricalPart height="0.25" radius="0.2" name="Luz" id="1">
+				<position>
+					{0,0,1.55}
+				</position>
+				<colour r="1" g="1" b="0.501961"/>
+			</CylindricalPart>
+			<CylindricalPart height="0.05" radius="0.25" name="Tapa" id="2">
+				<position>
+					{0,0,1.8}
+				</position>
+				<colour r="0.219608" g="0.219608" b="0.219608"/>
+			</CylindricalPart>
+			<position>
+				{0.9,11.4,0}
+			</position>
+		</ComposedEntity>
+		<ComposedEntity name="Farola 5" id="65">
+			<CylindricalPart height="1.8" radius="0.05" name="Cuerpo" id="0"/>
+			<CylindricalPart height="0.25" radius="0.2" name="Luz" id="1">
+				<position>
+					{0,0,1.55}
+				</position>
+				<colour r="1" g="1" b="0.501961"/>
+			</CylindricalPart>
+			<CylindricalPart height="0.05" radius="0.25" name="Tapa" id="2">
+				<position>
+					{0,0,1.8}
+				</position>
+				<colour r="0.219608" g="0.219608" b="0.219608"/>
+			</CylindricalPart>
+			<position>
+				{18.6,5.9,0}
+			</position>
+		</ComposedEntity>
+		<ComposedEntity name="Farola 6" id="66">
+			<CylindricalPart height="1.8" radius="0.05" name="Cuerpo" id="0"/>
+			<CylindricalPart height="0.25" radius="0.2" name="Luz" id="1">
+				<position>
+					{0,0,1.55}
+				</position>
+				<colour r="1" g="1" b="0.501961"/>
+			</CylindricalPart>
+			<CylindricalPart height="0.05" radius="0.25" name="Tapa" id="2">
+				<position>
+					{0,0,1.8}
+				</position>
+				<colour r="0.219608" g="0.219608" b="0.219608"/>
+			</CylindricalPart>
+			<position>
+				{12,12.6,0}
+			</position>
+		</ComposedEntity>
+	</World>
+</root>

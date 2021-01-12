@@ -22,7 +22,7 @@ wMax = 1.00;
 goal = [26, 6.5];
 % goal = [21.5, 3.6];
 xSize = 26.5;
-tgtRange = 1;
+tgtRange = 0.7;
 tgtReplanTh = 4;
 
 % Posicion robot
@@ -104,13 +104,14 @@ while (0 ~= ret) && (t < tmax) && loop
     
     % Check if replan is needed
     if tgtDist > tgtReplanTh
-%         [ret,wp] = mappingAndPlan(2,BW,Xk,goal,cellsPerMeter);
-%         if 0 == ret
-%             disp('Replaning error');
-%             loop = false;
-%         else
-%             wpind = 1;
-%         end
+        loop = false;
+        %         [ret,wp] = mappingAndPlan(2,BW,Xk,goal,cellsPerMeter);
+        %         if 0 == ret
+        %             disp('Replaning error');
+        %             loop = false;
+        %         else
+        %             wpind = 1;
+        %         end
     else
         % Choose next waypoint
         while tgtDist < tgtRange && wpind < length(wp(:,1))
@@ -142,12 +143,15 @@ while (0 ~= ret) && (t < tmax) && loop
         
         % Movement
         ret = apoloMoveMRobot(robot.name, [v w], h);
+        if 0 == ret
+            disp('Trajectory collision!');
+        end
     end
     
     % New iteration
     t = t+h;
     apoloUpdate();
-%     pause(h/4);
+    %     pause(h/4);
     
     %% Data adquisition
     XrealAUX = apoloGetLocationMRobot(robot.name);
@@ -162,9 +166,6 @@ while (0 ~= ret) && (t < tmax) && loop
     Xestimado(:,k) = Xk;
 end
 
-if 0 == ret
-    disp('Trajectory collision!');
-end
 %% Ploting
 tAcum = 0:h:(k-1)*h;
 
@@ -228,4 +229,5 @@ for i = 1:length(LM(:,1))
     y = LM(i,2)*cellsPerMeter;
     plot(x,y, 'go')
 end
+plot(wp(wpind,1)*cellsPerMeter,wp(wpind,2)*cellsPerMeter, '*');
 hold off

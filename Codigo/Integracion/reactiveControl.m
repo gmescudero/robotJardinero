@@ -8,7 +8,9 @@ lim2 = 0.45;
 lim3 = 0.25;
 
 %% Agorithm
-frente      = min([apoloGetUltrasonicSensor('uci'),apoloGetUltrasonicSensor('ucd')]);
+frente      = min([ apoloGetUltrasonicSensor('uc'),...
+                    apoloGetUltrasonicSensor('uci'),...
+                    apoloGetUltrasonicSensor('ucd')]);
 izquierda   = apoloGetUltrasonicSensor('ul');
 derecha     = apoloGetUltrasonicSensor('ur');
 

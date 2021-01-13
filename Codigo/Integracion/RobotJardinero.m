@@ -57,9 +57,9 @@ Xk = Xrealk;
 laser.name = 'LMS100';
 
 % Inicializacion matriz P
-Pxini       = 1e-3;
-Pyini       = 1e-3;
-Pthetaini   = 1e-3;
+Pxini       = 0.013;
+Pyini       = 0.010;
+Pthetaini   = 0.010;
 Pk = diag([Pxini,Pyini,Pthetaini]);
 
 % Planning

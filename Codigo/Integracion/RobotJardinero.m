@@ -19,15 +19,19 @@ wMax = 0.90;
 
 % Planning
 % goal = [12, 6];
-goal = [26, 6.5];
+% goal = [26, 6.5];
+goal = [8.4, 6.7];
 xSize = 26.5;
+ySize = 13.5;
 tgtRange = 0.7;
-tgtReplanTh = 4;
 
 % Posicion robot
 robot.name = 'Marvin';
 robot.pos  = [0.5,0.5, 0];
 robot.ang  = 0;
+
+% Laser
+laser.name = 'LMS100';
 
 % Controller parameters
 controller.Kp        = 0.20;
@@ -52,18 +56,16 @@ apoloUpdate();
 Xrealk = [robot.pos(1); robot.pos(2); robot.ang];
 Xk = Xrealk;
 
-% Posicion del laser respecto al robot
-laser.name = 'LMS100';
-
 % Inicializacion matriz P
-Pxini       = 1e-3;
-Pyini       = 1e-3;
-Pthetaini   = 1e-3;
+Pxini       = 0.013;
+Pyini       = 0.010;
+Pthetaini   = 0.010;
 Pk = diag([Pxini,Pyini,Pthetaini]);
 
 % Planning
 wpind = 1;
 dist = 0;
+tgtReplanTh = 4;
 
 k   = 0;
 wpK = 0;
@@ -84,6 +86,7 @@ disp('Planning finished');
 
 reaktK = 0;
 loop = true;
+tooClose = false;
 while (0 ~= ret) && (t < tmax) && loop
     k=k+1;
     
@@ -103,25 +106,30 @@ while (0 ~= ret) && (t < tmax) && loop
     
     % Check if replan is needed
     if tgtDist > tgtReplanTh
-        loop = false;
-        %         [ret,wp] = mappingAndPlan(2,BW,Xk,goal,cellsPerMeter);
-        %         if 0 == ret
-        %             disp('Replaning error');
-        %             loop = false;
-        %         else
-        %             wpind = 1;
-        %         end
+        disp('Replaning ...');
+        [ret,wp] = mappingAndPlan(2,BW,Xk,goal,cellsPerMeter);
+        if 0 == ret
+            disp('Replaning error');
+            loop = false;
+        else
+            disp('Replaning finished');
+            wpind = 1;
+        end
     else
+        % Reduce replanning radius
+        tgtReplanTh = tgtReplanTh - vMax*h/4;
+        
         % Choose next waypoint
         while tgtDist < tgtRange && wpind < length(wp(:,1))
             wpind = wpind+1;
             % Calculate target dist and angle
             tgtDist = sqrt((wp(wpind,1) - Xk(1))^2 + (wp(wpind,2)- Xk(2))^2);
             tgtAngl = atan2((wp(wpind,2)- Xk(2)),(wp(wpind,1) - Xk(1)));
+            tgtReplanTh = tgtDist*2 + 1;
         end
         
         % Reactive control
-        if k > reaktK
+        if ~tooClose
             if wControl <= 0
                 dir = -1;
             else
@@ -132,6 +140,8 @@ while (0 ~= ret) && (t < tmax) && loop
         
         % Compute velocities
         if tooClose %|| k < reaktK
+            BW = mapUpdate(laser.name,BW,cellsPerMeter,Xk);
+            
             reaktK = k + 1;
             v = ((vReact))*vMax;
             w = ((wReact))*wMax;
@@ -144,13 +154,14 @@ while (0 ~= ret) && (t < tmax) && loop
         ret = apoloMoveMRobot(robot.name, [v w], h);
         if 0 == ret
             disp('Trajectory collision!');
+            loop = false;
         end
     end
     
     % New iteration
     t = t+h;
     apoloUpdate();
-    %     pause(h/4);
+    pause(h/10);
     
     %% Data adquisition
     XrealAUX = apoloGetLocationMRobot(robot.name);
@@ -214,7 +225,7 @@ ylabel('\theta(m)')
 
 figure(2)
 
-imshow (~BW)
+imshow (flip(~BW,1))
 hold on
 plot(Xestimado(1,:)*cellsPerMeter, Xestimado(2,:)*cellsPerMeter, 'b.');
 plot(Xreal(1,:)*cellsPerMeter, Xreal(2,:)*cellsPerMeter, 'r');

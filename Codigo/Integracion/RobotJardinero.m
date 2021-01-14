@@ -19,8 +19,8 @@ wMax = 0.90;
 
 % Planning
 % goal = [12, 6];
-% goal = [26, 6.5];
-goal = [8.4, 6.7];
+goal = [26, 6.5];
+% goal = [8.4, 6.7];
 xSize = 26.5;
 ySize = 13.5;
 tgtRange = 0.7;
@@ -93,13 +93,6 @@ while (0 ~= ret) && (t < tmax) && loop
     % Retrieve the robot location from Kalman filter
     [Xk,Pk] = getLocation(robot.name,laser.name,LM,Xk,Pk,h,v,w);
     
-    % Trajectory controller
-    [vControl,wControl,wpReached] = controllerPID(controller,Xk,wp(wpind,:));
-    if wpind >= length(wp) && wpReached
-        disp('Goal Reached!');
-        loop = false;
-    end
-    
     % Compute distance and angle to next waypoint
     tgtDist = sqrt((wp(wpind,1) - Xk(1))^2 + (wp(wpind,2)- Xk(2))^2);
     tgtAngl = atan2((wp(wpind,2)- Xk(2)),(wp(wpind,1) - Xk(1)));
@@ -126,6 +119,13 @@ while (0 ~= ret) && (t < tmax) && loop
             tgtDist = sqrt((wp(wpind,1) - Xk(1))^2 + (wp(wpind,2)- Xk(2))^2);
             tgtAngl = atan2((wp(wpind,2)- Xk(2)),(wp(wpind,1) - Xk(1)));
             tgtReplanTh = tgtDist*2 + 1;
+        end
+        
+        % Trajectory controller
+        [vControl,wControl,wpReached] = controllerPID(controller,Xk,wp(wpind,:));
+        if wpind >= length(wp) && wpReached
+            disp('Goal Reached!');
+            loop = false;
         end
         
         % Reactive control
@@ -174,16 +174,21 @@ while (0 ~= ret) && (t < tmax) && loop
     
     %Sólo para almacenarlo
     Xestimado(:,k) = Xk;
+    
+    Pacumulado(1,k) = Pk(1,1);
+    Pacumulado(2,k) = Pk(2,2);
+    Pacumulado(3,k) = Pk(3,3);
 end
 
 %% Ploting
 tAcum = 0:h:(k-1)*h;
 
-% Representacion grafica
+% Kalman 
 figure(1);
-subplot(3,2,[1 3 5])
+subplot(3,3,[1 4 7])
 axis([-0.5 27 -0.5 14])
 
+% ubicacion en el mapa
 hold on
 plot(Xreal(1,:), Xreal(2,:), 'r');
 % plot(Xestimado(1,:), Xestimado(2,:), '--b');
@@ -199,7 +204,8 @@ xlabel('x(m)')
 ylabel('y(m)')
 legend('Movimiento Real','Estimación')
 
-subplot(3,2,2)
+% Estados
+subplot(3,3,2)
 plot(tAcum,Xreal(1,:),'r');
 hold on
 plot(tAcum,Xestimado(1,:),'.b');
@@ -207,7 +213,7 @@ hold off
 xlabel('t(s)')
 ylabel('x(m)')
 
-subplot(3,2,4)
+subplot(3,3,5)
 plot(tAcum,Xreal(2,:),'r');
 hold on
 plot(tAcum,Xestimado(2,:),'.b');
@@ -215,7 +221,7 @@ hold off
 xlabel('t(s)')
 ylabel('y(m)')
 
-subplot(3,2,6)
+subplot(3,3,8)
 plot(tAcum,Xreal(3,:),'r');
 hold on
 plot(tAcum,Xestimado(3,:),'.b');
@@ -223,6 +229,28 @@ hold off
 xlabel('t(s)')
 ylabel('\theta(m)')
 
+% Varianzas
+subplot(3,3,3);
+axis([0 12 0 9])
+plot(Pacumulado(1,:),'b');
+xlabel ('t (muestras)')
+ylabel ('Varianza X (m2)')
+hold on
+
+subplot(3,3,6);
+axis([0 12 0 9])
+plot(Pacumulado(2,:),'b');
+xlabel ('t (muestras)')
+ylabel ('Varianza Y (m2)')
+
+subplot(3,3,9);
+axis([0 12 0 9])
+plot(Pacumulado(3,:),'b');
+xlabel ('t (muestras)')
+ylabel ('Varianza \theta (rad2)')
+
+
+% Map view
 figure(2)
 
 imshow (flip(~BW,1))

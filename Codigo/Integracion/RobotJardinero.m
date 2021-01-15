@@ -173,7 +173,7 @@ while (0 ~= ret) && (t < tmax) && loop
     % New iteration
     t = t+h;
     apoloUpdate();
-    pause(h/10);
+%     pause(h/10);
     
     %% Data adquisition
     XrealAUX = apoloGetLocationMRobot(robot.name);
@@ -190,7 +190,8 @@ while (0 ~= ret) && (t < tmax) && loop
 
     % Ploteo movimiento online
     figure(10)
-    imshow(not(BW))
+    BW2 = flip(BW ,1);
+    imshow(not(BW2))
     set(gca, 'YDir','normal')
     hold on
     plot(Xestimado(1,:)*cellsPerMeter,Xestimado(2,:)*cellsPerMeter,'--r','linewidth',2);

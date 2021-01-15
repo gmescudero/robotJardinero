@@ -5,6 +5,7 @@ clearvars; clc; close all;
 % Posicion balizas
 % LM(xPos,yPos)
 load balizas_jardin.mat
+global baliza
 
 % Mapa binario
 % BW(x,y)
@@ -153,7 +154,7 @@ while (0 ~= ret) && (t < tmax) && loop
     % New iteration
     t = t+h;
     apoloUpdate();
-    %     pause(h/4);
+    pause(h/4);
     
     %% Data adquisition
     XrealAUX = apoloGetLocationMRobot(robot.name);
@@ -166,6 +167,28 @@ while (0 ~= ret) && (t < tmax) && loop
     
     %Sólo para almacenarlo
     Xestimado(:,k) = Xk;
+    
+    % Ploteo movimiento online
+    figure(10)
+    imshow(not(BW))
+    set(gca, 'YDir','normal')
+    hold on
+    plot(Xestimado(1,:)*cellsPerMeter,Xestimado(2,:)*cellsPerMeter,'--r','linewidth',2);
+%     plot(Xk(1)*cellsPerMeter,Xk(2)*cellsPerMeter,'ko','linewidth',4);
+%     rectangle('Position',[Xk(1)*cellsPerMeter,Xk(2)*cellsPerMeter,0.5*cellsPerMeter,0.5*cellsPerMeter],'Curvature',[0.7,0.4],'FaceColor','r');
+    xr = Xk(1)*cellsPerMeter;
+    yr = Xk(2)*cellsPerMeter;
+    size = 0.2 * cellsPerMeter;
+    p = patch([xr-size xr+size xr+size xr-size], [yr-size yr-size yr+size yr+size],'r');
+    rotate(p, [0 0 1], Xk(3)*180/pi,[xr yr 0]) 
+    for i = 1:length(baliza.id)
+        id = baliza.id(i);
+        plot(LM(id,1)*cellsPerMeter,LM(id,2)*cellsPerMeter,'bo','linewidth',4);
+    end
+    xlabel('x(m)')
+    ylabel('y(m)')
+    hold off
+    
 end
 
 %% Ploting

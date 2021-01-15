@@ -11,8 +11,10 @@ lim3 = 0.25;
 frente      = min([ apoloGetUltrasonicSensor('uc'),...
                     apoloGetUltrasonicSensor('uci'),...
                     apoloGetUltrasonicSensor('ucd')]);
-izquierda   = apoloGetUltrasonicSensor('ul');
-derecha     = apoloGetUltrasonicSensor('ur');
+izquierda   = min([ apoloGetUltrasonicSensor('ul'),...
+                    apoloGetUltrasonicSensor('uci')]);
+derecha     = min([ apoloGetUltrasonicSensor('ur'),...
+                    apoloGetUltrasonicSensor('ucd')]);
 
 if frente > lim1 && izquierda > lim2 && derecha > lim2
     % No near obstacles
@@ -48,7 +50,7 @@ else
     % Obstacle too close
     tooClose = true;
     vf = 0;
-    vg = dir*0.5;
+    vg = dir;
 end
 
 end

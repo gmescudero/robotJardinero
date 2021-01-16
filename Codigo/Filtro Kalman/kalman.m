@@ -2,9 +2,9 @@
 clearvars; clc;
 
 % Definimos una trayectoria circular
-h = 0.5;    % Actualizacion de sensores
-v = 0.25/12;    % Velocidad lineal
-w = 0.10/12;    % Velocidad angular
+h = 0.1;    % Actualizacion de sensores
+v = 0;    % Velocidad lineal
+w = 2;    % Velocidad angular
 
 % Posicion robot 
 robot.pos = [-2.5, 0, 0];
@@ -66,7 +66,7 @@ e_ = 0;
 
 % Algoritmo
 t = 0;
-tmax = 500;
+tmax = 1;
 tAcum = [];
 k = 1;
 wpind = 1;
@@ -213,7 +213,9 @@ while t<tmax
     Xestimado(:,k) = Xk;
     
     % Temporal, solo para calibracion
-    Vestimado(:,k) = (Xrealk(1) - X_realk(1))/(h*cos(Xrealk(3)/2 + X_realk(3)/2));
+    Vx = (Xrealk(1) - X_realk(1))/(h*cos(Xrealk(3)/2 + X_realk(3)/2));
+    Vy = (Xrealk(2) - X_realk(2))/(h*sin(Xrealk(3)/2 + X_realk(3)/2));
+    Vestimado(:,k) = sqrt(Vx^2+Vy^2);
     Westimado(:,k) = (Xrealk(3) - X_realk(3))/h;
     ErrorV(:,k) = v - Vestimado(:,k);
     ErrorW(:,k) = w - Westimado(:,k);
@@ -235,17 +237,17 @@ while t<tmax
 end 
 
 % temporal para calibracion
-mean(Eacumulado1)
-std(Eacumulado1)
-mean(Eacumulado2)
-std(Eacumulado2)
-mean(Eacumulado3)
-std(Eacumulado3)
+% mean(Eacumulado1)
+% std(Eacumulado1)
+% mean(Eacumulado2)
+% std(Eacumulado2)
+% mean(Eacumulado3)
+% std(Eacumulado3)
 
-% mean(ErrorV(2:end))
-% std(ErrorV(2:end))
-% mean(ErrorW(2:end))
-% std(ErrorW(2:end))
+mean(ErrorV(2:end))
+std(ErrorV(2:end))
+mean(ErrorW(2:end))
+std(ErrorW(2:end))
 
 figure(5)
 subplot(2,1,1)

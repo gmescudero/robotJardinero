@@ -1,5 +1,5 @@
 %% Robot Jardinero
-clearvars; clc; close all;
+clearvars; clc; %close all;
 
 %% Config
 % Posicion balizas
@@ -18,7 +18,7 @@ h = 0.25; % Refresh rate
 tmax = 500;
 
 % max vels
-vMax = 0.30;
+vMax = 0.50;
 wMax = 1.00;
 
 % Planning
@@ -168,7 +168,7 @@ while (0 ~= ret) && (t < tmax) && loop
     % New iteration
     t = t+h;
     apoloUpdate();
-    pause(h/10);
+    pause(h/4);
     
     %% Data adquisition
     XrealAUX = apoloGetLocationMRobot(robot.name);
@@ -185,16 +185,8 @@ while (0 ~= ret) && (t < tmax) && loop
 
     % Ploteo movimiento online
     figure(10)
-<<<<<<< HEAD
-<<<<<<< HEAD
     BW2 = flip(BW ,1);
     imshow(not(BW2));
-=======
-    imshow(not(BW))
->>>>>>> parent of ce20574... updated
-=======
-    imshow(not(BW))
->>>>>>> parent of ce20574... updated
     set(gca, 'YDir','normal')
     cellsPerMeter2 = fix(length(BW(1,:))/xSize);
     hold on
@@ -220,92 +212,92 @@ while (0 ~= ret) && (t < tmax) && loop
 
 end
 
-%% Ploting
-tAcum = 0:h:(k-1)*h;
-
-% Kalman 
-figure(1);
-subplot(3,3,[1 4 7])
-axis([-0.5 27 -0.5 14])
-
-% ubicacion en el mapa
-hold on
-plot(Xreal(1,:), Xreal(2,:), 'r');
-% plot(Xestimado(1,:), Xestimado(2,:), '--b');
-for i=1:t/h
-    plot(Xestimado(1,i), Xestimado(2,i), '.b');
-end
-for i = 1:length(wp(:,1))
-    plot(wp(i,1), wp(i,2), 'o');
-end
-hold off
-title('Trayectoria')
-xlabel('x(m)')
-ylabel('y(m)')
-legend('Movimiento Real','Estimación')
-
-% Estados
-subplot(3,3,2)
-plot(tAcum,Xreal(1,:),'r');
-hold on
-plot(tAcum,Xestimado(1,:),'.b');
-hold off
-xlabel('t(s)')
-ylabel('x(m)')
-
-subplot(3,3,5)
-plot(tAcum,Xreal(2,:),'r');
-hold on
-plot(tAcum,Xestimado(2,:),'.b');
-hold off
-xlabel('t(s)')
-ylabel('y(m)')
-
-subplot(3,3,8)
-plot(tAcum,Xreal(3,:),'r');
-hold on
-plot(tAcum,Xestimado(3,:),'.b');
-hold off
-xlabel('t(s)')
-ylabel('\theta(m)')
-
-% Varianzas
-subplot(3,3,3);
-axis([0 12 0 9])
-plot(Pacumulado(1,:),'b');
-xlabel ('t (muestras)')
-ylabel ('Varianza X (m2)')
-hold on
-
-subplot(3,3,6);
-axis([0 12 0 9])
-plot(Pacumulado(2,:),'b');
-xlabel ('t (muestras)')
-ylabel ('Varianza Y (m2)')
-
-subplot(3,3,9);
-axis([0 12 0 9])
-plot(Pacumulado(3,:),'b');
-xlabel ('t (muestras)')
-ylabel ('Varianza \theta (rad2)')
-
-
-% Map view
-figure(2)
-
-imshow (flip(~BW,1))
-hold on
-plot(Xestimado(1,:)*cellsPerMeter, Xestimado(2,:)*cellsPerMeter, 'b.');
-plot(Xreal(1,:)*cellsPerMeter, Xreal(2,:)*cellsPerMeter, 'r');
-for i = 1:length(wp(:,1))
-    x = wp(i,1)*cellsPerMeter;
-    y = wp(i,2)*cellsPerMeter;
-    plot(x,y, 'mo');
-end
-for i = 1:length(LM(:,1))
-    x = LM(i,1)*cellsPerMeter;
-    y = LM(i,2)*cellsPerMeter;
-    plot(x,y, 'go')
-end
-plot(wp(wpind,1)*cellsPerMeter,wp(wpind,2)*cellsPerMeter, '*');
+% %% Ploting
+% tAcum = 0:h:(k-1)*h;
+% 
+% % Kalman 
+% figure(1);
+% subplot(3,3,[1 4 7])
+% axis([-0.5 27 -0.5 14])
+% 
+% % ubicacion en el mapa
+% hold on
+% plot(Xreal(1,:), Xreal(2,:), 'r');
+% % plot(Xestimado(1,:), Xestimado(2,:), '--b');
+% for i=1:t/h
+%     plot(Xestimado(1,i), Xestimado(2,i), '.b');
+% end
+% for i = 1:length(wp(:,1))
+%     plot(wp(i,1), wp(i,2), 'o');
+% end
+% hold off
+% title('Trayectoria')
+% xlabel('x(m)')
+% ylabel('y(m)')
+% legend('Movimiento Real','Estimación')
+% 
+% % Estados
+% subplot(3,3,2)
+% plot(tAcum,Xreal(1,:),'r');
+% hold on
+% plot(tAcum,Xestimado(1,:),'.b');
+% hold off
+% xlabel('t(s)')
+% ylabel('x(m)')
+% 
+% subplot(3,3,5)
+% plot(tAcum,Xreal(2,:),'r');
+% hold on
+% plot(tAcum,Xestimado(2,:),'.b');
+% hold off
+% xlabel('t(s)')
+% ylabel('y(m)')
+% 
+% subplot(3,3,8)
+% plot(tAcum,Xreal(3,:),'r');
+% hold on
+% plot(tAcum,Xestimado(3,:),'.b');
+% hold off
+% xlabel('t(s)')
+% ylabel('\theta(m)')
+% 
+% % Varianzas
+% subplot(3,3,3);
+% axis([0 12 0 9])
+% plot(Pacumulado(1,:),'b');
+% xlabel ('t (muestras)')
+% ylabel ('Varianza X (m2)')
+% hold on
+% 
+% subplot(3,3,6);
+% axis([0 12 0 9])
+% plot(Pacumulado(2,:),'b');
+% xlabel ('t (muestras)')
+% ylabel ('Varianza Y (m2)')
+% 
+% subplot(3,3,9);
+% axis([0 12 0 9])
+% plot(Pacumulado(3,:),'b');
+% xlabel ('t (muestras)')
+% ylabel ('Varianza \theta (rad2)')
+% 
+% 
+% % Map view
+% figure(2)
+% 
+% imshow (flip(~BW,1))
+% hold on
+% plot(Xestimado(1,:)*cellsPerMeter, Xestimado(2,:)*cellsPerMeter, 'b.');
+% plot(Xreal(1,:)*cellsPerMeter, Xreal(2,:)*cellsPerMeter, 'r');
+% for i = 1:length(wp(:,1))
+%     x = wp(i,1)*cellsPerMeter;
+%     y = wp(i,2)*cellsPerMeter;
+%     plot(x,y, 'mo');
+% end
+% for i = 1:length(LM(:,1))
+%     x = LM(i,1)*cellsPerMeter;
+%     y = LM(i,2)*cellsPerMeter;
+%     plot(x,y, 'go')
+% end
+% plot(wp(wpind,1)*cellsPerMeter,wp(wpind,2)*cellsPerMeter, '*');
 hold off

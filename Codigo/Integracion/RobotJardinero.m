@@ -168,7 +168,7 @@ while (0 ~= ret) && (t < tmax) && loop
     % New iteration
     t = t+h;
     apoloUpdate();
-%     pause(h/10);
+    pause(h/10);
     
     %% Data adquisition
     XrealAUX = apoloGetLocationMRobot(robot.name);
@@ -185,8 +185,12 @@ while (0 ~= ret) && (t < tmax) && loop
 
     % Ploteo movimiento online
     figure(10)
+<<<<<<< HEAD
     BW2 = flip(BW ,1);
     imshow(not(BW2));
+=======
+    imshow(not(BW))
+>>>>>>> parent of ce20574... updated
     set(gca, 'YDir','normal')
     cellsPerMeter2 = fix(length(BW(1,:))/xSize);
     hold on

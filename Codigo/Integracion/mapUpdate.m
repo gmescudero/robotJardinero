@@ -18,7 +18,7 @@ for i = 1:length(ld)
         indy1 = min([ySize,max([1,     round((X(2)+sin(angl)*dist)*scale)])]);
         
         indx2 = min([xSize,max([1,     round((X(1)+cos(angl)*(dist+0.01))*scale)])]);
-        indy2 = min([ySize,max([1,     round((X(1)+sin(angl)*(dist+0.01))*scale)])]);
+        indy2 = min([xSize,max([1,     round((X(1)+sin(angl)*(dist+0.01))*scale)])]);
         
         if ~BW(indy1,indx1)
             newObs(indx1,indy1) = true;

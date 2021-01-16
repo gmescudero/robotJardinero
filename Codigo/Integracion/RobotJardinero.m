@@ -1,5 +1,6 @@
 %% Robot Jardinero
-clearvars; clc; close all;
+clearvars; clc; 
+%close all;
 
 %% Config
 % Posicion balizas
@@ -18,7 +19,7 @@ h = 0.25; % Refresh rate
 tmax = 500;
 
 % max vels
-vMax = 0.30;
+vMax = 0.50;
 wMax = 1.00;
 
 % Planning
@@ -185,6 +186,7 @@ while (0 ~= ret) && (t < tmax) && loop
     figure(10)
     BW2 = flip(BW ,1);
     imshow(not(BW2));
+    set(gca,'Ydir','normal')
     cellsPerMeter2 = fix(length(BW(1,:))/xSize);
     hold on
     plot(Xreal(1,:)*cellsPerMeter2,Xreal(2,:)*cellsPerMeter2,'b','linewidth',1);

@@ -65,7 +65,7 @@ Xk = Xrealk;
 
 % Inicializacion matriz P
 Pxini       = 0.013;
-Pyini       = 0.010;
+Pyini       = 0.013;
 Pthetaini   = 0.010;
 Pk = diag([Pxini,Pyini,Pthetaini]);
 
@@ -97,6 +97,9 @@ loop = true;
 while (0 ~= ret) && (t < tmax) && loop
     k=k+1;
     
+    % Retrieve the robot location from Kalman filter
+    [Xk,Pk] = getLocation(robot.name,laser.name,LM,Xk,Pk,h,v,w);
+    
     % Compute distance and angle to next waypoint
     tgtDist = sqrt((wp(wpind,1) - Xk(1))^2 + (wp(wpind,2)- Xk(2))^2);
     tgtAngl = atan2((wp(wpind,2)- Xk(2)),(wp(wpind,1) - Xk(1)));
@@ -124,7 +127,7 @@ while (0 ~= ret) && (t < tmax) && loop
             % Calculate target dist and angle
             tgtDist = sqrt((wp(wpind,1) - Xk(1))^2 + (wp(wpind,2)- Xk(2))^2);
             tgtAngl = atan2((wp(wpind,2)- Xk(2)),(wp(wpind,1) - Xk(1)));
-            tgtReplanTh = tgtDist*2 + 1;
+            tgtReplanTh = 2*tgtDist + 1;
         end
         
         % Trajectory controller
@@ -164,8 +167,7 @@ while (0 ~= ret) && (t < tmax) && loop
         end
     end
     
-    % Retrieve the robot location from Kalman filter
-    [Xk,Pk] = getLocation(robot.name,laser.name,LM,Xk,Pk,h,v,w);
+    
     
     % New iteration
     t = t+h;

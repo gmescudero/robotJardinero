@@ -1,16 +1,16 @@
-function [Xk,Pk] = getLocation(robot,laser,LM,Xk_1,Pk_1,h,v,w)
+function [Xk,Pk] = getLocation(...
+    odoType,... % Odometry method 1 Apolo, 2 Comands
+    robot,...   % Robot name 
+    laser,...   % Laser name
+    LM,...      % Landmarks
+    Xk_1,...    % Last estimated position
+    Pk_1,...    % Last covariance matrix
+    h,...       % Sample time
+    v,...       % Comanded linear speed
+    w)          % Comanded angular speed
 
 %% CONFIG
 global baliza
-
-% Varianza del ruido del proceso 
-Qv = 1e-15;
-Qw = 1e-16;
-Qk_1 = diag([Qv,Qw]);
-
-% Qv = 0.017;
-% Qw = 0.006;
-% Qk_1 = diag([Qv,Qv,Qw]);
 
 % Varianza en la medida
 R1 = 0.0136;
@@ -30,41 +30,58 @@ for j = 1:length(baliza.distance)
 end
 
 %% Prediccion del estado (Modelo de odometria)
-% Uk = (apoloGetOdometry(robot))';
-% apoloResetOdometry(robot);
-% 
-% X_k = [Xk_1(1) + Uk(1)*cos(Xk_1(3)) - Uk(2)*sin(Xk_1(3));
-%        Xk_1(2) + Uk(1)*sin(Xk_1(3)) + Uk(2)*cos(Xk_1(3));
-%        Xk_1(3) + Uk(3)];
-% 
-% Ak = [  [1, 0, -Uk(1)*sin(Xk_1(3)) - Uk(2)*cos(Xk_1(3))];
-%         [0, 1,  Uk(1)*cos(Xk_1(3)) - Uk(2)*sin(Xk_1(3))];
-%         [0, 0,  1];
-% ];
-% Bk = [  [cos(Xk_1(3)), 0,            0];
-%         [0,            sin(Xk_1(3)), 0];
-%         [0,            0,            1]; 
-% ];
-% 
-% P_k = Ak*Pk_1*Ak' + Bk*Qk_1*Bk';
-
-Uk = [v*h*cos(Xk_1(3)+(w*h/2));
-      v*h*sin(Xk_1(3)+(w*h/2));
-      w*h];
-
-Ak = [  1 0 (-v*h*sin(Xk_1(3)+w*h/2));
-        0 1 ( v*h*cos(Xk_1(3)+w*h/2));
-        0 0 1                             ]; % Fi
-Bk = [  (cos(Xk_1(3)+w*h/2)) (-0.5*v*h*sin(Xk_1(3)+w*h/2));
-        (sin(Xk_1(3)+w*h/2)) ( 0.5*v*h*cos(Xk_1(3)+w*h/2));
-        0                     1          ]; % G
+if 1 == odoType % From apolo
+    % Varianza del ruido del proceso
+    Qv = 0.017;
+    Qw = 0.006;
+    Qk_1 = diag([Qv,Qv,Qw]);
     
-X_k = Xk_1 + Uk;
-P_k = Ak*Pk_1*((Ak)') + Bk*Qk_1*((Bk)');
+    % Odometria
+    Uk = (apoloGetOdometry(robot))';
+    apoloResetOdometry(robot);
+    
+    X_k = [ Xk_1(1) + Uk(1)*cos(Xk_1(3)) - Uk(2)*sin(Xk_1(3));
+            Xk_1(2) + Uk(1)*sin(Xk_1(3)) + Uk(2)*cos(Xk_1(3));
+            Xk_1(3) + Uk(3)];
 
-if X_k(3) < -pi
+    Ak = [  [1, 0, -Uk(1)*sin(Xk_1(3)) - Uk(2)*cos(Xk_1(3))];
+            [0, 1,  Uk(1)*cos(Xk_1(3)) - Uk(2)*sin(Xk_1(3))];
+            [0, 0,  1];];
+        
+    Bk = [  [cos(Xk_1(3)), 0,            0];
+            [0,            sin(Xk_1(3)), 0];
+            [0,            0,            1];];
+    
+    P_k = Ak*Pk_1*Ak' + Bk*Qk_1*Bk';
+    
+elseif 2 == odoType % from commanded motion
+    % Varianza del ruido del proceso
+    Qv = 1e-15;
+    Qw = 1e-16;
+    Qk_1 = diag([Qv,Qw]);
+    
+    % Odometria
+    Uk = [  v*h*cos(Xk_1(3)+(w*h/2));
+            v*h*sin(Xk_1(3)+(w*h/2));
+            w*h];
+    
+    Ak = [  1 0 (-v*h*sin(Xk_1(3)+w*h/2));
+            0 1 ( v*h*cos(Xk_1(3)+w*h/2));
+            0 0 1                             ]; % Fi
+    Bk = [  (cos(Xk_1(3)+w*h/2)) (-0.5*v*h*sin(Xk_1(3)+w*h/2));
+            (sin(Xk_1(3)+w*h/2)) ( 0.5*v*h*cos(Xk_1(3)+w*h/2));
+            0                     1          ]; % G
+    
+    X_k = Xk_1 + Uk;
+    P_k = Ak*Pk_1*Ak' + Bk*Qk_1*Bk';
+else
+    disp('Invalid localization method')
+    return
+end
+
+if X_k(3) <= -pi
     X_k(3) = X_k(3)+2*pi;
-elseif X_k(3) > pi
+elseif X_k(3) >= pi
     X_k(3) = X_k(3)-2*pi;
 end
 
@@ -79,9 +96,9 @@ for j = 1:length(baliza.distance)
     incX = LM(id,1)-X_k(1);
     incY = LM(id,2)-X_k(2);
     incAng = atan2(incY,incX) - X_k(3);
-    if incAng < -pi
+    if incAng <= -pi
         incAng = incAng+2*pi;
-    elseif incAng > pi
+    elseif incAng >= pi
         incAng = incAng-2*pi;
     end
     Zk_(3*j-2,1) = sqrt(incX^2+incY^2);
@@ -114,9 +131,9 @@ Xk = X_k + Wk*Yk;
 Pk = (eye(3) - Wk*Hk)*P_k;
 
 % Correcion de angulo
-if Xk(3) < -pi
+if Xk(3) <= -pi
     Xk(3) = Xk(3)+2*pi;
-elseif Xk(3) > pi
+elseif Xk(3) >= pi
     Xk(3) = Xk(3)-2*pi;
 end
 

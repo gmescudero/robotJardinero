@@ -1,6 +1,6 @@
 %% Robot Jardinero
 clearvars; clc; 
-%close all;
+close all;
 
 %% Config
 % Posicion balizas
@@ -98,7 +98,7 @@ while (0 ~= ret) && (t < tmax) && loop
     k=k+1;
     
     % Retrieve the robot location from Kalman filter
-    [Xk,Pk] = getLocation(robot.name,laser.name,LM,Xk,Pk,h,v,w);
+    [Xk,Pk] = getLocation(2,robot.name,laser.name,LM,Xk,Pk,h,v,w);
     
     % Compute distance and angle to next waypoint
     tgtDist = sqrt((wp(wpind,1) - Xk(1))^2 + (wp(wpind,2)- Xk(2))^2);

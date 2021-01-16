@@ -186,8 +186,12 @@ while (0 ~= ret) && (t < tmax) && loop
     % Ploteo movimiento online
     figure(10)
 <<<<<<< HEAD
+<<<<<<< HEAD
     BW2 = flip(BW ,1);
     imshow(not(BW2));
+=======
+    imshow(not(BW))
+>>>>>>> parent of ce20574... updated
 =======
     imshow(not(BW))
 >>>>>>> parent of ce20574... updated

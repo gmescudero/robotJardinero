@@ -115,6 +115,8 @@ while (0 ~= ret) && (t < tmax) && loop
             disp('Replaning finished');
             wpind = 1;
         end
+        v = 0;
+        w = 0;
     else
         % Reduce replanning radius
         tgtReplanTh = tgtReplanTh - vMax*h/4;

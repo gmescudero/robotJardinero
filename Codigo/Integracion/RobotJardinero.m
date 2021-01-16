@@ -23,8 +23,8 @@ wMax = 1.00;
 
 % Planning
 % goal = [12, 6];
-% goal = [26, 6.5];
-goal = [21.5, 3.6];
+goal = [26, 6.5];
+% goal = [21.5, 3.6];
 % goal = [8.4, 6.7];
 
 xSize = 26.5;
@@ -73,6 +73,8 @@ wpind = 1;
 dist = 0;
 tgtReplanTh = 4;
 
+% Others
+tooClose = false;
 k   = 0;
 wpK = 0;
 %% Algorithm
@@ -90,23 +92,12 @@ end
 toc
 disp('Planning finished');
 
-reaktK = 0;
 loop = true;
-tooClose = false;
 while (0 ~= ret) && (t < tmax) && loop
     k=k+1;
     
     % Retrieve the robot location from Kalman filter
     [Xk,Pk] = getLocation(robot.name,laser.name,LM,Xk,Pk,h,v,w);
-    
-    % Trajectory controller
-    [vControl,wControl,wpReached] = controllerPID(controller,Xk,wp(wpind,:));
-    
-    % Goal Reached
-    if wpind >= length(wp) && wpReached
-        disp('Goal Reached!');
-        loop = false;
-    end
     
     % Compute distance and angle to next waypoint
     tgtDist = sqrt((wp(wpind,1) - Xk(1))^2 + (wp(wpind,2)- Xk(2))^2);
@@ -136,6 +127,15 @@ while (0 ~= ret) && (t < tmax) && loop
             tgtReplanTh = tgtDist*2 + 1;
         end
         
+        % Trajectory controller
+        [vControl,wControl,wpReached] = controllerPID(controller,Xk,wp(wpind,:));
+
+        % Goal Reached
+        if wpind >= length(wp) && wpReached
+            disp('Goal Reached!');
+            loop = false;
+        end
+
         % Reactive control
         if ~tooClose
             if wControl <= 0
@@ -147,8 +147,7 @@ while (0 ~= ret) && (t < tmax) && loop
         [vReact, wReact,tooClose] = reactiveControl(dir);
         
         % Compute velocities
-        if tooClose %|| k < reaktK
-            reaktK = k + 1;
+        if tooClose
             v = ((vReact))*vMax;
             w = ((wReact))*wMax;
             BW = mapUpdate(laser.name,BW,cellsPerMeter,Xk);
@@ -182,20 +181,10 @@ while (0 ~= ret) && (t < tmax) && loop
     %Sólo para almacenarlo
     Xestimado(:,k) = Xk;
     
-
     % Ploteo movimiento online
     figure(10)
-<<<<<<< HEAD
-<<<<<<< HEAD
     BW2 = flip(BW ,1);
     imshow(not(BW2));
-=======
-    imshow(not(BW))
->>>>>>> parent of ce20574... updated
-=======
-    imshow(not(BW))
->>>>>>> parent of ce20574... updated
-    set(gca, 'YDir','normal')
     cellsPerMeter2 = fix(length(BW(1,:))/xSize);
     hold on
     plot(Xreal(1,:)*cellsPerMeter2,Xreal(2,:)*cellsPerMeter2,'b','linewidth',1);
@@ -288,7 +277,6 @@ axis([0 12 0 9])
 plot(Pacumulado(3,:),'b');
 xlabel ('t (muestras)')
 ylabel ('Varianza \theta (rad2)')
-
 
 % Map view
 figure(2)

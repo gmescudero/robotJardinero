@@ -8,6 +8,10 @@ Qv = 1e-15;
 Qw = 1e-16;
 Qk_1 = diag([Qv,Qw]);
 
+% Qv = 0.017;
+% Qw = 0.006;
+% Qk_1 = diag([Qv,Qv,Qw]);
+
 % Varianza en la medida
 R1 = 0.0136;
 R2 = 0.0090;
@@ -26,13 +30,23 @@ for j = 1:length(baliza.distance)
 end
 
 %% Prediccion del estado (Modelo de odometria)
-
-% TODO: For some reason the apolo odometry does not work correctly
 % Uk = (apoloGetOdometry(robot))';
 % apoloResetOdometry(robot);
 % 
-% Ak = h*eye(3);
-% Bk = h*eye(3);
+% X_k = [Xk_1(1) + Uk(1)*cos(Xk_1(3)) - Uk(2)*sin(Xk_1(3));
+%        Xk_1(2) + Uk(1)*sin(Xk_1(3)) + Uk(2)*cos(Xk_1(3));
+%        Xk_1(3) + Uk(3)];
+% 
+% Ak = [  [1, 0, -Uk(1)*sin(Xk_1(3)) - Uk(2)*cos(Xk_1(3))];
+%         [0, 1,  Uk(1)*cos(Xk_1(3)) - Uk(2)*sin(Xk_1(3))];
+%         [0, 0,  1];
+% ];
+% Bk = [  [cos(Xk_1(3)), 0,            0];
+%         [0,            sin(Xk_1(3)), 0];
+%         [0,            0,            1]; 
+% ];
+% 
+% P_k = Ak*Pk_1*Ak' + Bk*Qk_1*Bk';
 
 Uk = [v*h*cos(Xk_1(3)+(w*h/2));
       v*h*sin(Xk_1(3)+(w*h/2));
@@ -47,7 +61,6 @@ Bk = [  (cos(Xk_1(3)+w*h/2)) (-0.5*v*h*sin(Xk_1(3)+w*h/2));
     
 X_k = Xk_1 + Uk;
 P_k = Ak*Pk_1*((Ak)') + Bk*Qk_1*((Bk)');
-
 
 if X_k(3) < -pi
     X_k(3) = X_k(3)+2*pi;

@@ -11,17 +11,20 @@ global baliza
 % BW(x,y)
 load jardinBinMapWithFountain.mat
 
+% Mapa real
+mapPlot = imread('image_map.png');
+
 h = 0.25; % Refresh rate
 tmax = 500;
 
 % max vels
-vMax = 0.25;
+vMax = 0.30;
 wMax = 1.00;
 
 % Planning
 % goal = [12, 6];
-goal = [26, 6.5];
-% goal = [21.5, 3.6];
+% goal = [26, 6.5];
+goal = [21.5, 3.6];
 % goal = [8.4, 6.7];
 
 xSize = 26.5;
@@ -133,13 +136,6 @@ while (0 ~= ret) && (t < tmax) && loop
             tgtReplanTh = tgtDist*2 + 1;
         end
         
-        % Trajectory controller
-        [vControl,wControl,wpReached] = controllerPID(controller,Xk,wp(wpind,:));
-        if wpind >= length(wp) && wpReached
-            disp('Goal Reached!');
-            loop = false;
-        end
-        
         % Reactive control
         if ~tooClose
             if wControl <= 0
@@ -152,11 +148,10 @@ while (0 ~= ret) && (t < tmax) && loop
         
         % Compute velocities
         if tooClose %|| k < reaktK
-            BW = mapUpdate(laser.name,BW,cellsPerMeter,Xk);
-            
             reaktK = k + 1;
             v = ((vReact))*vMax;
             w = ((wReact))*wMax;
+            BW = mapUpdate(laser.name,BW,cellsPerMeter,Xk);
         else
             v = ((2*vControl + vReact)/3)*vMax;
             w = ((2*wControl + wReact)/3)*wMax;
@@ -191,18 +186,20 @@ while (0 ~= ret) && (t < tmax) && loop
     % Ploteo movimiento online
     figure(10)
     BW2 = flip(BW ,1);
-    imshow(not(BW2))
+    imshow(not(BW2));
     set(gca, 'YDir','normal')
+    cellsPerMeter2 = fix(length(BW(1,:))/xSize);
     hold on
-    plot(Xestimado(1,:)*cellsPerMeter,Xestimado(2,:)*cellsPerMeter,'--r','linewidth',2);
-    xr = Xk(1)*cellsPerMeter;
-    yr = Xk(2)*cellsPerMeter;
-    size = 0.2 * cellsPerMeter;
+    plot(Xreal(1,:)*cellsPerMeter2,Xreal(2,:)*cellsPerMeter2,'b','linewidth',1);
+    plot(Xestimado(1,:)*cellsPerMeter2,Xestimado(2,:)*cellsPerMeter2,'--r','linewidth',2);
+    xr = Xk(1)*cellsPerMeter2;
+    yr = Xk(2)*cellsPerMeter2;
+    size = 0.2 * cellsPerMeter2;
     p = patch([xr-size xr+size xr+size xr-size], [yr-size yr-size yr+size yr+size],'r');
     rotate(p, [0 0 1], Xk(3)*180/pi,[xr yr 0]) 
     for i = 1:length(baliza.id)
         id = baliza.id(i);
-        plot(LM(id,1)*cellsPerMeter,LM(id,2)*cellsPerMeter,'bo','linewidth',4);
+        plot(LM(id,1)*cellsPerMeter2,LM(id,2)*cellsPerMeter2,'bo','linewidth',4);
     end
     xlabel('x(m)')
     ylabel('y(m)')

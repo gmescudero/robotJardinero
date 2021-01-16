@@ -22,7 +22,7 @@ for i = 1:length(ld)
         
         if ~BW(indy1,indx1)
             newObs(indx1,indy1) = true;
-            newObs(indx2,indy2) = true;
+%             newObs(indx2,indy2) = true;
         end
     end
 end

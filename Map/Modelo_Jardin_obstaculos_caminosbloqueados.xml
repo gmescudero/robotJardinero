@@ -258,6 +258,11 @@
 				{22.7,8.4,0.2}
 			</position>
 		</LandMark>
+		<LandMark mark_id="25" name="LM25: ZonaSE2">
+			<position>
+				{1.4,3,0.2}
+			</position>
+		</LandMark>
 		<PrismaticPart name="Seto 1" id="33">
 			<orientation>
 				{0,0,-1.5708}

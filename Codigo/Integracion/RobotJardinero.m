@@ -1,6 +1,5 @@
 %% Robot Jardinero
-clearvars; clc; 
-%close all;
+clear all; clc; close all;
 
 %% Config
 % Posicion balizas
@@ -12,10 +11,7 @@ global baliza
 % BW(x,y)
 load jardinBinMapWithFountain.mat
 
-% Mapa real
-mapPlot = imread('image_map.png');
-
-h = 0.25; % Refresh rate
+h = 0.20; % Refresh rate
 tmax = 500;
 
 % max vels
@@ -23,10 +19,7 @@ vMax = 0.30;
 wMax = 1.00;
 
 % Planning
-% goal = [12, 6];
 goal = [26, 6.5];
-% goal = [21.5, 3.6];
-% goal = [8.4, 6.7];
 
 xSize = 26.5;
 ySize = 13.5;
@@ -96,13 +89,6 @@ disp('Planning finished');
 loop = true;
 while (0 ~= ret) && (t < tmax) && loop
     k=k+1;
-   
-    % Movement
-    ret = apoloMoveMRobot(robot.name, [v w], h);
-    if 0 == ret
-        disp('Trajectory collision!');
-        loop = false;
-    end
     
     % Retrieve the robot location from Kalman filter
     [Xk,Pk] = getLocation(2,robot.name,laser.name,LM,Xk,Pk,h,v,w);
@@ -123,48 +109,53 @@ while (0 ~= ret) && (t < tmax) && loop
             disp('Replaning finished');
             wpind = 1;
         end
-        v = 0;
-        w = 0;
-    else
-        % Reduce replanning radius
-        tgtReplanTh = tgtReplanTh - vMax*h/4;
-        
-        % Choose next waypoint
-        while tgtDist < tgtRange && wpind < length(wp(:,1))
-            wpind = wpind+1;
-            % Calculate target dist and angle
-            tgtDist = sqrt((wp(wpind,1) - Xk(1))^2 + (wp(wpind,2)- Xk(2))^2);
-            tgtAngl = atan2((wp(wpind,2)- Xk(2)),(wp(wpind,1) - Xk(1)));
-            tgtReplanTh = 2*tgtDist + 1;
-        end
-        
-        % Trajectory controller
-        [vControl,wControl,wpReached] = controllerPID(controller,Xk,wp(wpind,:));
-
-        % Goal Reached
-        if wpind >= length(wp) && wpReached
-            disp('Goal Reached!');
-            loop = false;
-        end
-
-        % Reactive control
-        if ~tooClose
-            if wControl <= 0
-                dir = -1;
-            else
-                dir = 1;
-            end
-        end
-        [vReact, wReact,tooClose] = reactiveControl(dir);
-        % Compute velocities
-        if tooClose
-            v = ((vReact))*vMax;
-            w = ((wReact))*wMax;
-            BW = mapUpdate(laser.name,BW,cellsPerMeter,Xk);
+    end
+    
+    % Reduce replanning radius
+    tgtReplanTh = tgtReplanTh - vMax*h/4;
+    
+    % Choose next waypoint
+    while tgtDist < tgtRange && wpind < length(wp(:,1))
+        wpind = wpind+1;
+        % Calculate target dist and angle
+        tgtDist = sqrt((wp(wpind,1) - Xk(1))^2 + (wp(wpind,2)- Xk(2))^2);
+        tgtAngl = atan2((wp(wpind,2)- Xk(2)),(wp(wpind,1) - Xk(1)));
+        tgtReplanTh = 2*tgtDist + 1;
+    end
+    
+    % Trajectory controller
+    [vControl,wControl,wpReached] = controllerPID(controller,Xk,wp(wpind,:));
+    
+    % Goal Reached
+    if wpind >= length(wp) && wpReached
+        disp('Goal Reached!');
+        loop = false;
+    end
+    
+    % Reactive control
+    if ~tooClose
+        if wControl <= 0
+            dir = -1;
         else
-            v = ((2*vControl + vReact)/3)*vMax;
-            w = ((2*wControl + wReact)/3)*wMax;
-        end 
+            dir = 1;
+        end
+    end
+    [vReact, wReact,tooClose] = reactiveControl(dir);
+    % Compute velocities
+    if tooClose
+        v = ((vReact))*vMax;
+        w = ((wReact))*wMax;
+        BW = mapUpdate(laser.name,BW,cellsPerMeter,Xk);
+    else
+        v = ((2*vControl + vReact)/3)*vMax;
+        w = ((2*wControl + wReact)/3)*wMax;
+    end
+    
+    % Movement
+    ret = apoloMoveMRobot(robot.name, [v w], h);
+    if 0 == ret
+        disp('Trajectory collision!');
+        loop = false;
     end
     
     % New iteration
@@ -196,7 +187,7 @@ while (0 ~= ret) && (t < tmax) && loop
     yr = Xk(2)*cellsPerMeter2;
     size = 0.2 * cellsPerMeter2;
     p = patch([xr-size xr+size xr+size xr-size], [yr-size yr-size yr+size yr+size],'r');
-    rotate(p, [0 0 1], Xk(3)*180/pi,[xr yr 0]) 
+    rotate(p, [0 0 1], Xk(3)*180/pi,[xr yr 0])
     for i = 1:length(baliza.id)
         id = baliza.id(i);
         plot(LM(id,1)*cellsPerMeter2,LM(id,2)*cellsPerMeter2,'bo','linewidth',4);
@@ -205,25 +196,24 @@ while (0 ~= ret) && (t < tmax) && loop
     xlabel('x(m)')
     ylabel('y(m)')
     hold off
-
+    
     Pacumulado(1,k) = Pk(1,1);
     Pacumulado(2,k) = Pk(2,2);
     Pacumulado(3,k) = Pk(3,3);
-
+    
 end
 
 %% Ploting
 tAcum = 0:h:(k-1)*h;
 
-% Kalman 
+% Kalman
 figure(1);
 subplot(3,3,[1 4 7])
 axis([-0.5 27 -0.5 14])
 
-% ubicacion en el mapa
+% Ubicacion en el mapa
 hold on
 plot(Xreal(1,:), Xreal(2,:), 'r');
-% plot(Xestimado(1,:), Xestimado(2,:), '--b');
 for i=1:t/h
     plot(Xestimado(1,i), Xestimado(2,i), '.b');
 end

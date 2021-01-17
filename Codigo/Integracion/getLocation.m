@@ -89,39 +89,34 @@ Zk_     = zeros(3*length(baliza.distance),1);
 Rk_aux  = zeros(3*length(baliza.distance),1);
 Hk      = zeros(3*length(baliza.distance),3);
 Yk      = zeros(3*length(baliza.distance),1);
-
 for j = 1:length(baliza.distance)
     id = baliza.id(j);
     % Calculo de matriz Zk_
-    incX = LM(id,1) - X_k(1);
-    incY = LM(id,2) - X_k(2);
+    incX = LM(id,1)-X_k(1);
+    incY = LM(id,2)-X_k(2);
     incAng = atan2(incY,incX) - X_k(3);
-    % Correcion de angulo
     if incAng <= -pi
         incAng = incAng+2*pi;
-    elseif incAng >= pi
+    elseif incAng > pi
         incAng = incAng-2*pi;
     end
     Zk_(3*j-2,1) = sqrt(incX^2+incY^2);
     Zk_(3*j-1,1) = sin(incAng);
-    Zk_(3*j-0,1) = cos(incAng);
-
+    Zk_(3*j,1) = cos(incAng);
     % Calculo de matriz Hk
-    Hk(3*j-2,:) = [incX/sqrt(incX^2+incY^2) incY/sqrt(incX^2+incY^2) 0];
-    Hk(3*j-1,:) = [-incY*cos(-incAng)/(incX^2+incY^2) incX*cos(-incAng)/(incX^2+incY^2) -cos(-incAng)];
-    Hk(3*j-0,:) = [-incY*sin(-incAng)/(incX^2+incY^2) incX*sin(-incAng)/(incX^2+incY^2) -sin(-incAng)];
-
+    Hk(3*j-2,:) = [-incX/sqrt(incX^2+incY^2) -incY/sqrt(incX^2+incY^2) 0];
+    Hk(3*j-1,:) = [incY*cos(-incAng)/(incX^2+incY^2) -incX*cos(-incAng)/(incX^2+incY^2) -cos(-incAng)];
+    Hk(3*j-0,:) = [incY*sin(-incAng)/(incX^2+incY^2) -incX*sin(-incAng)/(incX^2+incY^2) -sin(-incAng)];
     % Calculo de matriz Rk
     Rk_aux(3*j-2)   = R1;
     Rk_aux(3*j-1)   = R2;
-    Rk_aux(3*j-0)   = R3;
+    Rk_aux(3*j)     = R3;
     
     % Calculo de matriz Yk
     %% Comparacion
-    Yk(3*j-2,1) = -(Zk(3*j-2,1)-Zk_(3*j-2,1));
+    Yk(3*j-2,1) = +(Zk(3*j-2,1)-Zk_(3*j-2,1));
     Yk(3*j-1,1) = +(Zk(3*j-1,1)-Zk_(3*j-1,1));
     Yk(3*j-0,1) = +(Zk(3*j-0,1)-Zk_(3*j-0,1));
-
 end
 Rk = diag(Rk_aux);
 % ----------------------------------------------------------------
@@ -137,10 +132,9 @@ Pk = (eye(3) - Wk*Hk)*P_k;
 % Correcion de angulo
 if Xk(3) <= -pi
     Xk(3) = Xk(3)+2*pi;
-elseif Xk(3) >= pi
+elseif Xk(3) > pi
     Xk(3) = Xk(3)-2*pi;
 end
-
 
 end
 

@@ -167,7 +167,6 @@ while (0 ~= ret) && (t < tmax) && loop
         end 
     end
     
-    
     % New iteration
     t = t+h;
     apoloUpdate();
@@ -206,7 +205,6 @@ while (0 ~= ret) && (t < tmax) && loop
     xlabel('x(m)')
     ylabel('y(m)')
     hold off
-    
 
     Pacumulado(1,k) = Pk(1,1);
     Pacumulado(2,k) = Pk(2,2);

@@ -1,5 +1,5 @@
 function [vf, vg,tooClose] = reactiveControl(...
-    dir)    % Prefered turning dir: 1 izda, -1 dcha
+    dir)    % Prefered turning dir (-1,1)
 tooClose = false;
 
 %% Config

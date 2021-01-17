@@ -41,7 +41,7 @@ robot.ang  = 0;
 laser.name = 'LMS100';
 
 % Controller parameters
-controller.Kp        = 0.40;
+controller.Kp        = 1.00;
 controller.Ki        = 0.00;
 controller.Kd        = 0.50;
 controller.sampleT   = h;
@@ -96,6 +96,13 @@ disp('Planning finished');
 loop = true;
 while (0 ~= ret) && (t < tmax) && loop
     k=k+1;
+   
+    % Movement
+    ret = apoloMoveMRobot(robot.name, [v w], h);
+    if 0 == ret
+        disp('Trajectory collision!');
+        loop = false;
+    end
     
     % Retrieve the robot location from Kalman filter
     [Xk,Pk] = getLocation(2,robot.name,laser.name,LM,Xk,Pk,h,v,w);
@@ -149,7 +156,6 @@ while (0 ~= ret) && (t < tmax) && loop
             end
         end
         [vReact, wReact,tooClose] = reactiveControl(dir);
-        
         % Compute velocities
         if tooClose
             v = ((vReact))*vMax;
@@ -158,15 +164,9 @@ while (0 ~= ret) && (t < tmax) && loop
         else
             v = ((2*vControl + vReact)/3)*vMax;
             w = ((2*wControl + wReact)/3)*wMax;
-        end
-        
-        % Movement
-        ret = apoloMoveMRobot(robot.name, [v w], h);
-        if 0 == ret
-            disp('Trajectory collision!');
-            loop = false;
-        end
+        end 
     end
+    
     
     % New iteration
     t = t+h;
@@ -202,6 +202,7 @@ while (0 ~= ret) && (t < tmax) && loop
         id = baliza.id(i);
         plot(LM(id,1)*cellsPerMeter2,LM(id,2)*cellsPerMeter2,'bo','linewidth',4);
     end
+    plot(wp(wpind,1)*cellsPerMeter2,wp(wpind,2)*cellsPerMeter2,'g*')
     xlabel('x(m)')
     ylabel('y(m)')
     hold off

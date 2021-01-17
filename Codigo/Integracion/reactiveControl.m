@@ -4,7 +4,7 @@ tooClose = false;
 
 %% Config
 lim1 = 0.60;
-lim2 = 0.45;
+lim2 = 0.40;
 lim3 = 0.25;
 
 %% Agorithm

@@ -3,17 +3,17 @@ clearvars; clc;
 
 % Definimos una trayectoria circular
 h = 0.5;    % Actualizacion de sensores
-v = 0.25/12;    % Velocidad lineal
-w = 0.10/12;    % Velocidad angular
+v = 0.01;    % Velocidad lineal
+w = -0.01;    % Velocidad angular
 
 % Posicion robot 
 robot.pos = [-2.5, 0, 0];
-robot.ang = [-pi/2];
+robot.ang = [-pi/4];
 apoloPlaceMRobot('Marvin', robot.pos, robot.ang);
 
 % Inicializamos la posición inicial
 Xrealk = [robot.pos(1); robot.pos(2); robot.ang];
-Xk = [-2.5; 0; -pi/2];
+Xk = [-2.5; 0; -pi/4];
 
 % Posicion del laser respecto al robot
 laser.pos(1) = 0;
@@ -148,9 +148,9 @@ while t<tmax
        
     P_k = Ak*Pk_1*((Ak)') + Bk*Qk_1*((Bk)');
     
-    if X_k(3) < -pi
+    if X_k(3) <= -pi
         X_k(3) = X_k(3)+2*pi;
-    elseif X_k(3) > pi
+    elseif X_k(3) >= pi
         X_k(3) = X_k(3)-2*pi;
     end
     
@@ -165,9 +165,9 @@ while t<tmax
         incX = LM(id,1)-X_k(1);
         incY = LM(id,2)-X_k(2);
         incAng = atan2(incY,incX) - X_k(3);
-        if incAng < -pi
+        if incAng <= -pi
             incAng = incAng+2*pi;
-        elseif incAng > pi
+        elseif incAng >= pi
             incAng = incAng-2*pi;
         end
         Zk_(3*j-2,1) = sqrt(incX^2+incY^2);
@@ -176,7 +176,7 @@ while t<tmax
         % Calculo de matriz Hk
         Hk(3*j-2,:) = [incX/sqrt(incX^2+incY^2) incY/sqrt(incX^2+incY^2) 0];
         Hk(3*j-1,:) = [-incY*cos(-incAng)/(incX^2+incY^2) incX*cos(-incAng)/(incX^2+incY^2) -cos(-incAng)];
-        Hk(3*j,:) = [incY*sin(-incAng)/(incX^2+incY^2) -incX*sin(-incAng)/(incX^2+incY^2) -sin(-incAng)];
+        Hk(3*j-0,:) = [incY*sin(-incAng)/(incX^2+incY^2) -incX*sin(-incAng)/(incX^2+incY^2) -sin(-incAng)];
         % Calculo de matriz Rk
         Rk_aux(3*j-2) = R1;
         Rk_aux(3*j-1) = R2;
@@ -202,9 +202,9 @@ while t<tmax
         Xk = X_k + Wk*Yk;
         Pk = (eye(3) - Wk*Hk)*P_k;
         % Correcion de angulo
-        if Xk(3) < -pi
+        if Xk(3) <= -pi
             Xk(3) = Xk(3)+2*pi;
-        elseif Xk(3) > pi
+        elseif Xk(3) >= pi
             Xk(3) = Xk(3)-2*pi;
         end
     end
@@ -213,14 +213,23 @@ while t<tmax
     Xestimado(:,k) = Xk;
     
     % Temporal, solo para calibracion
-    Vestimado(:,k) = (Xrealk(1) - X_realk(1))/(h*cos(Xrealk(3)/2 + X_realk(3)/2));
+    if Xrealk(3) <= -pi
+        Xrealk(3) = Xrealk(3)+2*pi;
+        X_realk(3) = X_realk(3)+2*pi;
+    elseif Xrealk(3) >= pi
+        Xrealk(3) = Xrealk(3)-2*pi;
+        X_realk(3) = X_realk(3)-2*pi;
+    end
+    Vxestimado = (Xrealk(1) - X_realk(1))/(h*cos(Xrealk(3)/2 + X_realk(3)/2));
+    Vyestimado = (Xrealk(2) - X_realk(2))/(h*sin(Xrealk(3)/2 + X_realk(3)/2));
+    Vestimado(:,k) = (Vxestimado+Vyestimado)/2;
     Westimado(:,k) = (Xrealk(3) - X_realk(3))/h;
     ErrorV(:,k) = v - Vestimado(:,k);
     ErrorW(:,k) = w - Westimado(:,k);
     
-    Eacumulado1(k) = Xrealk(1) - X_k(1);
-    Eacumulado2(k) = Xrealk(2) - X_k(2);
-    Eacumulado3(k) = Xrealk(3) - X_k(3);
+%     Eacumulado1(k) = Xrealk(1) - X_k(1);
+%     Eacumulado2(k) = Xrealk(2) - X_k(2);
+%     Eacumulado3(k) = Xrealk(3) - X_k(3);
     
     Pacumulado(1,k) = Pk(1,1);
     Pacumulado(2,k) = Pk(2,2);

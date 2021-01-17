@@ -110,7 +110,7 @@ for j = 1:length(baliza.distance)
     % Calculo de matriz Rk
     Rk_aux(3*j-2)   = R1;
     Rk_aux(3*j-1)   = R2;
-    Rk_aux(3*j)     = R3;
+    Rk_aux(3*j-0)   = R3;
     
     % Calculo de matriz Yk
     %% Comparacion

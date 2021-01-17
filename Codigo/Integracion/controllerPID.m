@@ -13,7 +13,12 @@ persistent e_ se
 
 % Angle to waypoint
 angwp = atan2(wp(2)-Xk(2),wp(1)-Xk(1));
-
+% Correcion de angulo
+if angwp <= -pi
+    angwp = angwp+2*pi;
+elseif angwp >= pi
+    angwp = angwp-2*pi;
+end
 % Error values
 e = ((sin(angwp-Xk(3)) + (1-cos(angwp-Xk(3)))));
 if isempty(e_) || isempty(se)

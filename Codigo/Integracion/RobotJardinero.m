@@ -19,7 +19,7 @@ h = 0.25; % Refresh rate
 tmax = 500;
 
 % max vels
-vMax = 0.50;
+vMax = 0.30;
 wMax = 1.00;
 
 % Planning
@@ -45,7 +45,7 @@ controller.Kp        = 0.40;
 controller.Ki        = 0.00;
 controller.Kd        = 0.50;
 controller.sampleT   = h;
-controller.reachedTh = 0.25;
+controller.reachedTh = 0.30;
 
 %% Initialization
 % Timing params
@@ -98,7 +98,8 @@ while (0 ~= ret) && (t < tmax) && loop
     k=k+1;
     
     % Retrieve the robot location from Kalman filter
-    [Xk,Pk] = getLocation(robot.name,laser.name,LM,Xk,Pk,h,v,w);
+    [Xk,Pk] = getLocation(2,robot.name,laser.name,LM,Xk,Pk,h,v,w);
+    XrealAUX = apoloGetLocationMRobot(robot.name); % Real position
     
     % Compute distance and angle to next waypoint
     tgtDist = sqrt((wp(wpind,1) - Xk(1))^2 + (wp(wpind,2)- Xk(2))^2);
@@ -167,15 +168,12 @@ while (0 ~= ret) && (t < tmax) && loop
         end
     end
     
-    
-    
     % New iteration
     t = t+h;
     apoloUpdate();
     pause(h/10);
     
     %% Data adquisition
-    XrealAUX = apoloGetLocationMRobot(robot.name);
     
     % Obtenemos la posicion real del robot
     Xrealk(1) = XrealAUX(1);

@@ -2,20 +2,18 @@
 clearvars; clc;
 
 % Definimos una trayectoria circular
-h = 0.25;    % Actualizacion de sensores
-v = 0.25/24;    % Velocidad lineal
-w = -0.10/12;    % Velocidad angular
+h = 0.5;    % Actualizacion de sensores
+v = 0.25/12;    % Velocidad lineal
+w = 0.10/12;    % Velocidad angular
 
 % Posicion robot 
-% robot.pos = [-2.5, 0, 0];
-robot.pos = [0, 0, 0];
+robot.pos = [-2.5, 0, 0];
 robot.ang = [-pi/2];
 apoloPlaceMRobot('Marvin', robot.pos, robot.ang);
 
 % Inicializamos la posición inicial
 Xrealk = [robot.pos(1); robot.pos(2); robot.ang];
-% Xk = [-2.5; 0; -pi/2];
-Xk = [0; 0; -pi/2];
+Xk = [-2.5; 0; -pi/2];
 
 % Posicion del laser respecto al robot
 laser.pos(1) = 0;
@@ -34,14 +32,14 @@ Qk_1 = [Qv 0; 0 Qw];
 
 % Inicializacion matriz P
 Pxini = 0.013;
-Pyini = 0.013;
+Pyini = 0.010;
 Pthetaini = 0.010;
 Pk = [Pxini 0 0; 0 Pyini 0; 0 0 Pthetaini];
 
 % Varianza en la medida
-R1 = 0.0138;
-R2 = 0.0084;
-R3 = 0.0104;
+R1 = 0.0136;
+R2 = 0.0089;
+R3 = 0.0100;
 
 % Posicion balizas
 LM(1,:) = [-3.9, 0.0, 0.2];
@@ -68,7 +66,7 @@ e_ = 0;
 
 % Algoritmo
 t = 0;
-tmax = 3000;
+tmax = 500;
 tAcum = [];
 k = 1;
 wpind = 1;
@@ -174,7 +172,7 @@ while t<tmax
         end
         Zk_(3*j-2,1) = sqrt(incX^2+incY^2);
         Zk_(3*j-1,1) = sin(incAng);
-        Zk_(3*j-0,1) = cos(incAng);
+        Zk_(3*j,1) = cos(incAng);
         % Calculo de matriz Hk
         Hk(3*j-2,:) = [incX/sqrt(incX^2+incY^2) incY/sqrt(incX^2+incY^2) 0];
         Hk(3*j-1,:) = [-incY*cos(-incAng)/(incX^2+incY^2) incX*cos(-incAng)/(incX^2+incY^2) -cos(-incAng)];
@@ -182,7 +180,7 @@ while t<tmax
         % Calculo de matriz Rk
         Rk_aux(3*j-2) = R1;
         Rk_aux(3*j-1) = R2;
-        Rk_aux(3*j-0) = R3;
+        Rk_aux(3*j) = R3;
         
         % Calculo de matriz Yk
         % Comparacion
@@ -220,9 +218,9 @@ while t<tmax
     ErrorV(:,k) = v - Vestimado(:,k);
     ErrorW(:,k) = w - Westimado(:,k);
     
-%     Eacumulado1(k) = Xrealk(1) - X_k(1);
-%     Eacumulado2(k) = Xrealk(2) - X_k(2);
-%     Eacumulado3(k) = Xrealk(3) - X_k(3);
+    Eacumulado1(k) = Xrealk(1) - X_k(1);
+    Eacumulado2(k) = Xrealk(2) - X_k(2);
+    Eacumulado3(k) = Xrealk(3) - X_k(3);
     
     Pacumulado(1,k) = Pk(1,1);
     Pacumulado(2,k) = Pk(2,2);
@@ -249,13 +247,13 @@ std(Eacumulado3)
 % mean(ErrorW(2:end))
 % std(ErrorW(2:end))
 
-% figure(5)
-% subplot(2,1,1)
-% plot(tAcum,Vestimado)
-% title('Velocidad lineal estimada')
-% subplot(2,1,2)
-% plot(tAcum,Westimado)
-% title('Velocidad angular estimada')
+figure(5)
+subplot(2,1,1)
+plot(tAcum,Vestimado)
+title('Velocidad lineal estimada')
+subplot(2,1,2)
+plot(tAcum,Westimado)
+title('Velocidad angular estimada')
 
 % Representacion grafica
 figure(1);
